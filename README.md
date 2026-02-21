@@ -60,7 +60,7 @@ Render's Background Workers cost money, but we can host Keyboard Kev for complet
 2. Go to [render.com](https://render.com) and create a free account.
 3. Click **New** > **Web Service**.
 4. Connect your GitHub repository.
-5. Render will see `render.yaml` and auto-fill everything (Build Command: `pip install -r requirements.txt`, Start Command: `gunicorn main:app`).
+5. Render will see `render.yaml` and auto-fill everything (Build Command: `pip install -r requirements.txt`, Start Command: `python main.py`).
 6. Go to **Environment** and add one variable: `DISCORD_TOKEN` = your token value. Do not upload the `.env` file!
 7. Click **Create Web Service**.
 8. It will take 2-3 minutes to build. Once it's live, copy the URL at the top left (e.g., `https://keyboard-kev.onrender.com`).

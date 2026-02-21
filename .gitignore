@@ -1,0 +1,11 @@
+.env
+*.log
+__pycache__/
+*.pyc
+data/seen_articles.json
+data/xp_data.json
+data/warnings.json
+data/custom_commands.json
+data/draft_config.json
+data/reaction_roles.json
+data/reminders.json

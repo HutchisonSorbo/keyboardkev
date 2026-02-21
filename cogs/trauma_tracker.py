@@ -62,12 +62,22 @@ class TraumaTracker(commands.Cog):
 
     async def _post_articles(self, articles):
         for guild in self.bot.guilds:
-            channel = discord.utils.get(guild.text_channels, name=config.NEWS_CHANNEL)
-            if not channel:
-                log.warning(f"News channel {config.NEWS_CHANNEL} not found in {guild.name}")
-                continue
-                
+            news_channel = discord.utils.get(guild.text_channels, name=config.NEWS_CHANNEL)
+            injury_channel = discord.utils.get(guild.text_channels, name=config.INJURY_CHANNEL)
+            
             for entry in reversed(articles): # Oldest first to keep chronological order
+                title = entry.get('title', 'No Title')
+                link = entry.get('link', '')
+                summary = entry.get('summary', 'No summary provided.')
+                
+                # Check keywords to route
+                content_to_check = f"{title} {summary}".lower()
+                is_injury = any(kw.lower() in content_to_check for kw in config.INJURY_KEYWORDS)
+                
+                target_channel = injury_channel if is_injury else news_channel
+                
+                if not target_channel:
+                    continue
                 title = entry.get('title', 'No Title')
                 link = entry.get('link', '')
                 summary = entry.get('summary', 'No summary provided.')
@@ -89,9 +99,9 @@ class TraumaTracker(commands.Cog):
                     embed.set_footer(text=f"AFL News • {entry.published}")
                 
                 try:
-                    await channel.send(embed=embed)
+                    await target_channel.send(embed=embed)
                 except discord.Forbidden:
-                    log.error(f"Missing permissions to post news in {guild.name} #{config.NEWS_CHANNEL}")
+                    log.error(f"Missing permissions to post news in {guild.name} #{target_channel.name}")
 
 async def setup(bot):
     await bot.add_cog(TraumaTracker(bot))

@@ -25,8 +25,11 @@ PREFIX = "!"
 # Channel for lineup reminders and AFL news
 AFL_CHANNEL = "afl-fantasy"
 
-# Channel where injury/news updates are posted automatically
-NEWS_CHANNEL = "injuries-and-news"
+# Channel where injury updates are posted automatically
+INJURY_CHANNEL = "afl-injuries"
+
+# Channel where general AFL news is posted automatically
+NEWS_CHANNEL = "afl-news"
 
 # Channel where scores are posted
 SCORES_CHANNEL = "scores"

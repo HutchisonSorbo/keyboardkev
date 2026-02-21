@@ -1,9 +1,9 @@
 services:
-  - type: worker
+  - type: web
     name: keyboard-kev
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python main.py
+    startCommand: gunicorn main:app
     envVars:
       - key: DISCORD_TOKEN
         sync: false

@@ -5,6 +5,8 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import aiohttp
+from threading import Thread
+from flask import Flask
 
 import config
 
@@ -84,8 +86,24 @@ class CoachBot(commands.Bot):
 
 bot = CoachBot()
 
+app = Flask('')
+
+@app.route('/')
+def home():
+    return f"{config.BOT_NAME} is alive and serving pints!"
+
+def run_flask():
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run_flask)
+    t.start()
+
 if __name__ == "__main__":
     try:
+        # Start the Flask web server
+        keep_alive()
+        
         # discord.py handles the event loop properly with bot.run()
         bot.run(TOKEN, log_handler=None) # We set up our own logger above
     except KeyboardInterrupt:

@@ -50,17 +50,32 @@ Keyboard Kev is 5 bots combined into one, featuring a massive suite of features:
 
 ---
 
-## 4. Free 24/7 Hosting on Render.com
+## 4. Free 24/7 Hosting on Render.com & UptimeRobot
+
+Render's Background Workers cost money, but we can host Keyboard Kev for completely free as a **Web Service**! Since Web Services go to sleep after 15 minutes of inactivity, we use a free pinging service to keep Kev awake.
+
+### Step A: Deploy on Render
 
 1. Push your project folder to a GitHub repository (private is fine).
 2. Go to [render.com](https://render.com) and create a free account.
-3. Click **New** > **Background Worker** (Background Workers stay active 24/7 on the free tier, unlike Web Services).
+3. Click **New** > **Web Service**.
 4. Connect your GitHub repository.
-5. Set the build command: `pip install -r requirements.txt`
-6. Set the start command: `python main.py`
-7. Go to **Environment** and add one variable: `DISCORD_TOKEN` = your token value. Do not upload the `.env` file!
-8. Click **Create Background Worker**. Render will build and deploy. Keyboard Kev will come online within 2-3 minutes.
-9. To redeploy after any code or config change, just push to GitHub. Render redeploys automatically.
+5. Render will see `render.yaml` and auto-fill everything (Build Command: `pip install -r requirements.txt`, Start Command: `gunicorn main:app`).
+6. Go to **Environment** and add one variable: `DISCORD_TOKEN` = your token value. Do not upload the `.env` file!
+7. Click **Create Web Service**.
+8. It will take 2-3 minutes to build. Once it's live, copy the URL at the top left (e.g., `https://keyboard-kev.onrender.com`).
+
+### Step B: Keep Him Awake
+
+1. Go to [uptimerobot.com](https://uptimerobot.com) and create a free account.
+2. Click **Add New Monitor**.
+3. Set Monitor Type to **HTTP(s)**.
+4. Set Friendly Name to **Keyboard Kev Pinger**.
+5. Paste your Render URL from Step A into the URL box.
+6. Set the Monitoring Interval to **5 minutes**.
+7. Click **Create Monitor**.
+
+Keyboard Kev will now never go to sleep and will run 24/7 for absolutely free!
 
 ---
 

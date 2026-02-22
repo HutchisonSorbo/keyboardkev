@@ -22,9 +22,9 @@ class Help(commands.Cog):
             "Reminders": {"emoji": "⏰", "commands": ["remindme", "myreminders", "cancelreminder"]},
             "Reaction Roles": {"emoji": "🎭", "commands": ["reactionrole", "listreactionroles", "removereactionrole"]},
             "Fun": {"emoji": "🎉", "commands": ["roast", "coinflip", "8ball", "roll"]},
-            "Admin": {"emoji": "🔧", "commands": ["setteam", "setwelcome", "tradepick", "setdeadline", "cleardeadline"]}
+            "Admin": {"emoji": "🔧", "commands": ["setteam", "setwelcome", "tradepick", "setdeadline", "cleardeadline", "draftpick"]}
         }
-        self.admin_commands = ["clearwarnings", "purge", "resetxp", "endpoll", "addcommand", "editcommand", "deletecommand", "reactionrole", "removereactionrole", "setteam", "setwelcome", "tradepick", "setdeadline", "cleardeadline"]
+        self.admin_commands = ["clearwarnings", "purge", "resetxp", "endpoll", "addcommand", "editcommand", "deletecommand", "reactionrole", "removereactionrole", "setteam", "setwelcome", "tradepick", "setdeadline", "cleardeadline", "draftpick"]
 
     def get_command_signature_and_desc(self, cmd):
         sig = f"/{cmd.name}"

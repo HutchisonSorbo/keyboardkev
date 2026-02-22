@@ -273,6 +273,20 @@ ROASTS = [
     "Breaking news: {target}'s bench scored more than their starting side. I need another drink."
 ]
 
+# Specific roasts for live draft picks. Use {team} and {player} placeholders.
+DRAFT_ROASTS = [
+    "Really? {player}? {team} must be drinking earlier than me today.",
+    "Great pick by {team}. Assuming we teleport back to 2019.",
+    "I was gonna say {team} is building a dynasty, but grabbing {player} here is just rebuilding forever.",
+    "Wow. {team} just ruined their entire season with one click. Welcome to {player} town.",
+    "Oh mate. {player} is going to break {team}'s heart by Round 3. Lock it in.",
+    "Did {team} just close their eyes and point? {player} belongs on the waivers.",
+    "I actually feel bad for {player}. They have to play for {team} now.",
+    "{team} thinks {player} is a premium. The rest of the league thinks {team} is an idiot.",
+    "The Keeper App just crashed because it couldn't believe {team} took {player} that high.",
+    "Bold strategy from {team} drafting {player}. Let's see if it pays off. Spoiler: It won't."
+]
+
 # Magic 8 Ball responses. Add or remove as you like.
 EIGHT_BALL_RESPONSES = [
     "Yeah nah, absolutely yes. Back yourself.",

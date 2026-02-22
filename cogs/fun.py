@@ -62,5 +62,37 @@ class Fun(commands.Cog):
         embed = discord.Embed(description=f"🎲 Rolled a D{sides} and got: **{result}**", color=config.COLOUR_FUN)
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="kev_verdict", description="Get Kev's hot take on a trade or draft pick")
+    @app_commands.describe(topic="The trade or pick you want Kev's opinion on")
+    async def kev_verdict(self, interaction: discord.Interaction, topic: str):
+        verdict = random.choice(config.KEV_VERDICTS)
+        
+        embed = discord.Embed(title="🍺 Kev's Verdict", color=config.COLOUR_FUN)
+        embed.add_field(name="Topic", value=topic, inline=False)
+        embed.add_field(name="Verdict", value=f"*{verdict}*", inline=False)
+        embed.set_thumbnail(url=self.bot.user.display_avatar.url if self.bot.user.display_avatar else None)
+        
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="rulebook", description="Instant rule lookup for the Keyboard Coaches league")
+    @app_commands.describe(rule="The specific rule to look up")
+    @app_commands.choices(rule=[
+        app_commands.Choice(name="Snake Draft", value="snake"),
+        app_commands.Choice(name="Keepers", value="keeper"),
+        app_commands.Choice(name="Scoring", value="scoring"),
+        app_commands.Choice(name="Trades", value="trades"),
+        app_commands.Choice(name="Waivers", value="waivers"),
+        app_commands.Choice(name="Emergencies", value="emergencies"),
+    ])
+    async def rulebook(self, interaction: discord.Interaction, rule: app_commands.Choice[str]):
+        rule_text = config.RULEBOOK.get(rule.value, "Mate, I don't know that rule. Ask the Commissioner.")
+        
+        embed = discord.Embed(
+            title="📖 Keyboard Coaches Rulebook", 
+            description=rule_text, 
+            color=config.COLOUR_HELP
+        )
+        await interaction.response.send_message(embed=embed)
+
 async def setup(bot):
     await bot.add_cog(Fun(bot))

@@ -330,13 +330,38 @@ DRAFT_ROASTS = [
     "Did {team} auto-draft {player} or are they just genuinely clueless?",
     "{player} is a great pick for {team}, assuming they're aiming for the Wooden Spoon.",
     "I've seen {player} play. {team} clearly hasn't.",
-    "{team} reaching for {player} is the funniest thing I've seen since the 119-point Grand Final.",
     "Someone check on {team}, I think they had a stroke before clicking draft on {player}.",
     "Wow. I'd rather draft the bloke who serves the pies at the MCG than {player}.",
     "{team} selecting {player} proves that some people just don't want to win.",
     "If {team} thinks {player} is going to help them win a premiership, I've got a bridge to sell them.",
     "{team} just drafted {player}. The rest of the league is breathing a sigh of relief."
 ]
+
+# Random verdicts for /kev_verdict. 
+KEV_VERDICTS = [
+    "Look mate, that's the sort of decision that gets you barred from the front bar.",
+    "Absolute genius. Or complete stupidity. Honestly, after 6 pints, I can't tell anymore.",
+    "I haven't seen a worse move since the Brisbane Bears.",
+    "Yeah nah, I actually don't hate it. Which probably means it's a terrible idea.",
+    "You're overthinking it. Let the footy gods decide.",
+    "If my grandmother had wheels she'd be a bike, and if this was a good idea you'd be winning.",
+    "I'm going to need another schooner before I try to understand the logic here.",
+    "Fair dinkum, you're dreaming if you think that's gonna pay off.",
+    "Bold strategy. Let's see if it pays off. (Spoiler: it won't).",
+    "It's so crazy it just might work. Just kidding, you're cooked.",
+    "Mate, you're playing checkers while everyone else is playing AFL Fantasy.",
+    "I'd rather trade my last pint away than make that move."
+]
+
+# Rulebook definitions for /rulebook
+RULEBOOK = {
+    "snake": "**Snake Draft:** The draft snakes back and forth. Last place picks first in Round 1, then last in Round 2, first in Round 3, and so on. Stops people from hoarding all the good rookies.",
+    "keeper": "**Keepers:** You gotta keep minimum 10, maximum 14 players from your final 2026 roster. Deadline is one week before draft day. Make your choices while sober.",
+    "scoring": "**Scoring System:** Standard AFL Fantasy. K: 3, B: 1, M: 3, T: 4, HO: 1, FA: -3, FF: 1, G: 6, B: 1. Captain gets 2x. No loopholes allowed if the game has already started.",
+    "trades": "**Trades:** No trade deadline. Commissioner can step in if you're colluding, but otherwise, let the boys play. 5 vetos to cancel a trade.",
+    "waivers": "**Waivers:** Reverse standings order. Resets every week. Processes on Wednesday nights at 11:59pm. Don't fall asleep at the wheel.",
+    "emergencies": "**Emergencies (The Golden Rule):** You get 1 emergency per position. Your emergency MUST play their game AFTER the bloke they are covering, otherwise their score doesn't count. Don't argue with me about it."
+}
 
 # Magic 8 Ball responses. Add or remove as you like.
 EIGHT_BALL_RESPONSES = [

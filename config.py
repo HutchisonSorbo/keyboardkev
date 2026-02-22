@@ -62,8 +62,8 @@ FINAL_REMINDER_HOUR = 19       # 7:00 PM
 FINAL_REMINDER_MINUTE = 50
 
 # Edit these messages to change what Larry says
-FIRST_REMINDER_MESSAGE = "🚨 **TEAMS DROP IN 20 MINS!** Righto ya flaming galahs, get your lineups sorted before I finish this pint. Check for late outs and managed players. Don't be that bloke who forgets. Put your bevvy down and set your team."
-FINAL_REMINDER_MESSAGE = "⏰ **FINAL WARNING - 10 MINS 'TIL LOCKOUT.** Still haven't set your team? Absolute amateur hour. I'm going back to the bar. 🍻"
+FIRST_REMINDER_MESSAGE = "🚨 **TEAMS DROP IN 20 MINS!** Righto coaches, final checks. Make sure your structures hold up and check the emergencies. Don't let a late out ruin your weekend. Grab a frothy and lock it in."
+FINAL_REMINDER_MESSAGE = "⏰ **FINAL WARNING - 10 MINS 'TIL LOCKOUT.** If you haven't locked your captain yet, what are you doing? Time to put the tools down and let the boys play."
 
 # Set to True to ping @everyone, False to just post the message
 PING_EVERYONE = True
@@ -138,21 +138,21 @@ DEFAULT_TEAMS = [
 # Message sent when a new member joins
 # Use {member} as a placeholder for the member mention
 # Use {server} as a placeholder for the server name
-WELCOME_MESSAGE = """🍻 G'day {member}, welcome to **{server}**! Pull up a stool at the bar. Have a squiz at #rules-and-prizes to see how we operate. All the general banter happens down in #the-commentary-box, while #afl-fantasy is for serious footy chat. First round is on you. 🍻
+WELCOME_MESSAGE = """🍻 G'day {member}, welcome to **{server}**! Pull up a stool. If you're looking for serious footy chat, head to #afl-fantasy. For everything else, #the-commentary-box is your spot. Have a quick read of #rules-and-prizes before we get started. 
 
-**Quick Pub Rules:**
-1. No racist, sexist, or homophobic slurs. Instant ban.
-2. Banter is highly encouraged, but keep it about footy or fantasy. Don't make it deeply personal.
+**Quick League Rules:**
+1. Keep the banter sharp, but don't overstep the mark. No slurs.
+2. We're here to talk footy and fantasy. Have a laugh, crack a beer.
 3. Don't spam the chat or tag `@everyone` unless you're the Commissioner.
-4. If you collude on a trade, you're out.
-5. Respect Discord's Terms of Service. Don't be an idiot."""
+4. Collusion is an instant red card. 
+5. Respect Discord's Terms of Service. Play on."""
 
 # Role automatically assigned to every new member (set to None to disable)
 # Must exactly match a role name in your server
 DEFAULT_ROLE = "Rookie Coach"
 
 # DM sent to new members on join (set to None to disable DMs)
-WELCOME_DM = "G'day mate! Welcome to Keyboard Coaches. Type /help in the server to see what old Kev can do for ya. Catch ya in the banter channel, I'm just heading back to the bar for another schooner. 🍺"
+WELCOME_DM = "G'day mate, welcome to Keyboard Coaches. Type /help in the server to see what I can do. I've got the stats, the advice, and occasionally, a cold beer. Catch ya in the chat."
 
 # -----------------------------------------------------------------------------
 # MODERATION - Auto-Mod Settings
@@ -200,7 +200,7 @@ XP_COOLDOWN_SECONDS = 60
 LEVEL_UP_CHANNEL = "the-commentary-box"
 
 # Level-up message. Use {member} and {level} as placeholders.
-LEVEL_UP_MESSAGE = "🎉 Oooaahh! {member} just hit **Level {level}**! The fantasy rig is looking good... or the luck's holding out. Either way, get this bloke a beer to celebrate! 🍻"
+LEVEL_UP_MESSAGE = "📈 {member} just leveled up to **Level {level}**! Putting in the hard yards at the selection table. Love to see it."
 
 # Role rewards at specific levels - format: {level_number: "Role Name"}
 # Role must already exist in your server. Set to empty dict {} to disable.
@@ -262,44 +262,34 @@ REACTION_ROLE_ADMIN_ROLE = "Commissioner"
 # List of roast messages. Use {target} as placeholder for the mentioned user.
 # Add as many as you like. The bot picks one at random.
 ROASTS = [
-    "Look at {target} out here thinking they can coach. Mate, you couldn't organise a piss-up in a brewery.",
-    "{target}'s team last week looked like it was picked by a bloke who's had 12 pints.",
-    "I've seen better fantasy decisions from the bloke asleep on the pokies.",
-    "{target} keeps saying they have a plan. Yeah, and my local's doing $2 pints. Both are fairy tales.",
-    "Rumour has it {target} still hasn't worked out how to set a captain. Fair dinkum.",
-    "{target}'s trading record is more tragic than dropping a fresh schnitty on the floor.",
-    "If bad trades were beers, {target} would be absolutely written off by Tuesday.",
-    "{target} treated the waiver wire like the designated driver. Completely ignored it.",
-    "Scientists have confirmed that {target}'s lineup decisions are worse than warm VB.",
-    "{target} said they did research at the pub. The research was just drinking.",
-    "The only thing lower than {target}'s rank is my glass. Whose shout is it?",
-    "{target}'s draft strategy was clearly: close eyes, click, sink a pint, regret everything.",
-    "Sources close to {target} confirm they still think Clayton Oliver is worth a first rounder. What a drongo.",
-    "{target} and smart trades: name a less iconic duo. I'll wait at the bar.",
-    "Breaking news: {target}'s bench scored more than their starting side. I need another drink.",
-    "I'd rather take advice from a bloke who drafted a retired player than listen to {target}'s trade ideas.",
-    "Watching {target} set their lineup is like watching a dog try to understand a card trick.",
-    "{target} really looked at their team and said 'yeah, this will win'. Delusional.",
-    "If {target} spent half as much time researching as they do talking trash, they might actually win a matchup.",
-    "I've seen better list management from clubs that folded in the 1800s than what {target} is doing.",
-    "{target} trades premiums for mid-pricers like they're collecting footy cards in the schoolyard. Grow up.",
-    "Someone tell {target} that chasing last week's points is exactly why they're anchored to the bottom of the ladder.",
-    "{target} holds onto injured players longer than my local holds onto the Friday meat tray.",
-    "I'd love to know what {target} was thinking with that captain choice, but it's hard to interpret absolute panic.",
-    "{target} treats the waiver wire like it costs real money. Use your claims, ya tightarse.",
-    "Is {target} intentionally tanking, or are they just naturally this bad at fantasy footy?"
+    "{target} is building a list like a bloke who hasn't watched footy since 2018.",
+    "I'm looking at {target}'s structure, and I'm honestly perplexed. Guns and spuds anywhere?",
+    "If breakevens were IQ tests, {target} would be struggling.",
+    "{target}'s trades are more reactionary than talkback radio after a goal review.",
+    "Did {target} just throw darts at the rookie list? Absolute chaos.",
+    "We need to talk about {target}'s captaincy choices. It's actually hurting to watch.",
+    "{target} chased last week's points again. Rookie mistake.",
+    "I've seen more value in a watered-down light beer than in {target}'s drafting strategy.",
+    "Is {target} trying to build a dynasty or a retirement home? Hard to tell.",
+    "Someone tell {target} that 'Time on Ground' actually matters.",
+    "{target} holds onto cash cows longer than a farmer in a drought. Upgrade them!",
+    "Trading a premium for a sideways mid-pricer? {target} needs to go back to fantasy school.",
+    "{target}'s emergencies have scored more than their on-field premiums. Classic.",
+    "I'm not sure if {target} is tanking or just genuinely terrible at this.",
+    "If {target} paid attention to Centre Bounce Attendances, we wouldn't be having this conversation.",
+    "Look, {target} has a plan. It's not a good one, but it's a plan."
 ]
 
 # The System Prompt used to heavily strictly control how the AI responds to /askkev questions.
-KEV_PERSONA_PROMPT = """You are "Keyboard Kev", an incredibly knowledgeable, overly-opinionated, and very funny Australian pub-goer who knows absolutely everything about the history of the Australian Football League (AFL) and AFL Fantasy. 
+KEV_PERSONA_PROMPT = """You are "Keyboard Kev", an incredibly knowledgeable, witty, and analytical Australian AFL Fantasy veteran modeled after Warnie from DT Talk. 
 You are currently responding to a question from a member of the "Keyboard Coaches" fantasy league in their Discord server.
 
 RULES:
-1. Always respond in character. Use Australian slang (mate, fair dinkum, drongo, frothies, etc) but don't overdo it to the point of being unreadable.
+1. Speak like a knowledgeable fantasy expert (use terms like 'snout', 'pig', 'CBAs', 'TOG', 'break-evens', 'value', 'cash cows', 'rookies').
 2. Keep your answers concise, no longer than 3-4 paragraphs. This is for a Discord chat.
-3. If they ask about historical AFL stats, grand finals, or player careers, give them the exact correct information but deliver it with banter.
-4. Often reference the fact that you are currently drinking a pint at the pub.
-5. If the question is NOT about AFL, Australian rules football, or general sports banter, aggressively tell them to stop asking stupid non-footy questions and get back to managing their fantasy team.
+3. Provide data-driven, analytical opinions but deliver them with subtle Australian wit and banter. You can mention having a cold beer ("frothy"), but don't act like a drunk; you are a sharp analyst.
+4. Give constructive but firm advice. If a trade is bad, call it out cleanly without resorting to insults. 
+5. If the question is NOT about AFL, Australian rules football, or fantasy, politely but firmly steer the conversation back to the footy.
 
 ---
 LEAGUE CHARTER & RULES (You must know this perfectly):
@@ -322,82 +312,71 @@ Commissioner: Ryan (Contact via Facebook Messenger or 0422 244 115)
 
 # Specific roasts for live draft picks. Use {team} and {player} placeholders.
 DRAFT_ROASTS = [
-    "Really? {player}? {team} must be drinking earlier than me today.",
-    "Great pick by {team}. Assuming we teleport back to 2019.",
-    "I was gonna say {team} is building a dynasty, but grabbing {player} here is just rebuilding forever.",
-    "Wow. {team} just ruined their entire season with one click. Welcome to {player} town.",
-    "Oh mate. {player} is going to break {team}'s heart by Round 3. Lock it in.",
-    "Did {team} just close their eyes and point? {player} belongs on the waivers.",
-    "I actually feel bad for {player}. They have to play for {team} now.",
-    "{team} thinks {player} is a premium. The rest of the league thinks {team} is an idiot.",
-    "The Keeper App just crashed because it couldn't believe {team} took {player} that high.",
-    "Bold strategy from {team} drafting {player}. Let's see if it pays off. Spoiler: It won't.",
-    "If drafting was a crime, {team} would be getting life in prison for picking {player} here.",
-    "Did {team} auto-draft {player} or are they just genuinely clueless?",
-    "{player} is a great pick for {team}, assuming they're aiming for the Wooden Spoon.",
-    "I've seen {player} play. {team} clearly hasn't.",
-    "Someone check on {team}, I think they had a stroke before clicking draft on {player}.",
-    "Wow. I'd rather draft the bloke who serves the pies at the MCG than {player}.",
-    "{team} selecting {player} proves that some people just don't want to win.",
-    "If {team} thinks {player} is going to help them win a premiership, I've got a bridge to sell them.",
-    "{team} just drafted {player}. The rest of the league is breathing a sigh of relief."
+    "{team} goes with {player}. That's certainly a choice. A confusing one, but a choice.",
+    "Reaching for {player} there, {team}. Must be seeing some pre-season role change the rest of us missed.",
+    "Look, {player} has upside, but drafting them here is paying overs, {team}.",
+    "{team} locking in {player}. Hope they've got good bench depth.",
+    "Classic {team} pick. Ignoring the stats and going on vibes with {player}.",
+    "I'd have waited another two rounds for {player}, but {team} clearly didn't want to risk it.",
+    "{team} taking {player} confirms we're officially in the speculative phase of the draft.",
+    "Not sure the Time on Ground numbers justify drafting {player} this early, {team}.",
+    "That is a very bold value call from {team} taking {player} here.",
+    "Hope {team} enjoys {player}'s rollercoaster scoring this year. Better buckle up."
 ]
 
 # Random verdicts for /kev_verdict. 
 KEV_VERDICTS = [
-    "Look mate, that's the sort of decision that gets you barred from the front bar.",
-    "Absolute genius. Or complete stupidity. Honestly, after 6 pints, I can't tell anymore.",
-    "I haven't seen a worse move since the Brisbane Bears.",
-    "Yeah nah, I actually don't hate it. Which probably means it's a terrible idea.",
-    "You're overthinking it. Let the footy gods decide.",
-    "If my grandmother had wheels she'd be a bike, and if this was a good idea you'd be winning.",
-    "I'm going to need another schooner before I try to understand the logic here.",
-    "Fair dinkum, you're dreaming if you think that's gonna pay off.",
-    "Bold strategy. Let's see if it pays off. (Spoiler: it won't).",
-    "It's so crazy it just might work. Just kidding, you're cooked.",
-    "Mate, you're playing checkers while everyone else is playing AFL Fantasy.",
-    "I'd rather trade my last pint away than make that move."
+    "Look, you're paying pure overs there. The value just isn't right.",
+    "That's a genuine lock and load. Put the 'C' on him while you're at it.",
+    "I'm keeping a close eye on the CBAs, but right now, I wouldn't touch that.",
+    "If he gets the midfield minutes, it's a genius move. If he gets stuck on a flank, you're cooked.",
+    "Pigs get fed, hogs get slaughtered. Don't get greedy, take the safe points.",
+    "Honestly, I don't hate it. It's a calculated risk with decent upside.",
+    "That's a sideways trade if I've ever seen one. Save your picks.",
+    "You have to back your structure. Don't blow up the list for one bloke.",
+    "Take the value while you can get it. He's ripe for the picking.",
+    "Check the break-even first. You might be buying at absolute peak price."
 ]
 
 # Rulebook definitions for /rulebook
 RULEBOOK = {
-    "snake": "**Snake Draft:** The draft snakes back and forth. Last place picks first in Round 1, then last in Round 2, first in Round 3, and so on. Stops people from hoarding all the good rookies.",
-    "keeper": "**Keepers:** You gotta keep minimum 10, maximum 14 players from your final 2026 roster. Deadline is one week before draft day. Make your choices while sober.",
-    "scoring": "**Scoring System:** Standard AFL Fantasy. K: 3, B: 1, M: 3, T: 4, HO: 1, FA: -3, FF: 1, G: 6, B: 1. Captain gets 2x. No loopholes allowed if the game has already started.",
-    "trades": "**Trades:** No trade deadline. Commissioner can step in if you're colluding, but otherwise, let the boys play. 5 vetos to cancel a trade.",
-    "waivers": "**Waivers:** Reverse standings order. Resets every week. Processes on Wednesday nights at 11:59pm. Don't fall asleep at the wheel.",
-    "emergencies": "**Emergencies (The Golden Rule):** You get 1 emergency per position. Your emergency MUST play their game AFTER the bloke they are covering, otherwise their score doesn't count. Don't argue with me about it."
+    "snake": "**Snake Draft:** The draft snakes back and forth. Last place picks first in Round 1, then last in Round 2, first in Round 3, and so on. Balances the rookie intake nicely.",
+    "keeper": "**Keepers:** You need to keep a minimum of 10, maximum of 14 players from your final 2026 roster. The deadline is exactly one week before draft day. Review your lists carefully.",
+    "scoring": "**Scoring System:** Standard AFL Fantasy. K: 3, B: 1, M: 3, T: 4, HO: 1, FA: -3, FF: 1, G: 6, B: 1. Captain gets 2x. No loopholes allowed if the game has already started on-field.",
+    "trades": "**Trades:** No trade deadline. The Commissioner can step in for clear collusion, but mostly, we let the market dictate value. Remember, 5 vetos will cancel a trade.",
+    "waivers": "**Waivers:** Reverse standings order, resetting every week. Processing happens on Wednesday nights at 11:59pm. Set your claims early.",
+    "emergencies": "**Emergencies (The Golden Rule):** You get 1 emergency per position. Your emergency MUST play their game AFTER the player they are covering, otherwise their score cannot substitute. Lock it in."
 }
 
 # Magic 8 Ball responses. Add or remove as you like.
 EIGHT_BALL_RESPONSES = [
-    "Yeah nah, absolutely yes. Back yourself.",
-    "Tell 'em they're dreaming. Not a chance.",
-    "Signs point to yes, but knowing your luck...",
-    "Ask me again after I've finished this pint.",
-    "The footy gods say no, mate.",
-    "Hussle up, definitely yes.",
-    "My mates at the pub say no, and they watch way more footy than you.",
-    "Without a shadow of a doubt.",
-    "Yeah nah, very doubtful.",
-    "Concentrate and ask again... actually don't, the answer is still no.",
-    "It is certain. Don't second-guess it like your last round of drinks.",
-    "Outlook is looking worse than a Monday morning hangover.",
-    "Bloody oath, yes.",
-    "Reply hazy, try again after lockout.",
-    "Better not tell you now. Mostly because it's bad news and I'm off the clock."
+    "The data points to yes. Back it in.",
+    "The stats don't support it, mate.",
+    "Upside is there, but wait for team sheets.",
+    "Ask me again after the Friday lockout.",
+    "The fantasy gods say no.",
+    "Absolutely. Lock and load.",
+    "I'm looking at the numbers and it's a pass from me.",
+    "Yes, the value is undeniable.",
+    "Doubtful. Too much role risk.",
+    "Look at the breakeven... it's a solid maybe.",
+    "It is certain. Don't overthink it.",
+    "Outlook is grim. Look elsewhere.",
+    "Yes, get it done before the price rises.",
+    "Reply hazy, wait for the coach's presser.",
+    "Better not risk it with your current structure."
 ]
 
 # Coin flip responses
 COIN_HEADS_RESPONSES = [
-    "Heads! 🪙 The footy gods have spoken.",
-    "Heads! 🪙 Easiest decision since ordering a parma.",
-    "HEADS! 🪙 Back yourself, champion."
+    "Heads! 🪙 Back the data, mate.",
+    "Heads! 🪙 Secure the points.",
+    "HEADS! 🪙 Follow your gut structure."
 ]
 COIN_TAILS_RESPONSES = [
-    "Tails! 🪙 There you go.",
-    "Tails! 🪙 Hope that settles the argument so we can get back to drinking.",
-    "TAILS! 🪙 The coin has decided. No take-backs, just like a spilled pint."
+    "Tails! 🪙 There's your answer.",
+    "Tails! 🪙 Don't look back now.",
+    "TAILS! 🪙 The coin has spoken, make the move."
 ]
 
 # -----------------------------------------------------------------------------

@@ -41,7 +41,7 @@ WELCOME_CHANNEL = "welcome"
 MOD_LOG_CHANNEL = "mod-log"
 
 # Channel for general banter and fun commands
-GENERAL_CHANNEL = "general"
+GENERAL_CHANNEL = "the-commentary-box"
 
 # Set to None to allow bot commands in any channel
 ALLOWED_COMMAND_CHANNELS = None
@@ -138,7 +138,7 @@ DEFAULT_TEAMS = [
 # Message sent when a new member joins
 # Use {member} as a placeholder for the member mention
 # Use {server} as a placeholder for the server name
-WELCOME_MESSAGE = "🍻 G'day {member}, welcome to **{server}**! Pull up a stool at the bar. You've just walked into the most chaotic AFL Fantasy league on the internet. Have a squiz at #rules to see how we operate, and hit up #afl-fantasy for the footy chat. First round is on you. 🍻"
+WELCOME_MESSAGE = "🍻 G'day {member}, welcome to **{server}**! Pull up a stool at the bar. Have a squiz at #rules-and-prizes to see how we operate. All the general banter happens down in #the-commentary-box, while #afl-fantasy is for serious footy chat. First round is on you. 🍻"
 
 # Role automatically assigned to every new member (set to None to disable)
 # Must exactly match a role name in your server
@@ -190,7 +190,7 @@ XP_PER_MESSAGE = 15
 XP_COOLDOWN_SECONDS = 60
 
 # Channel where level-up announcements are posted (set to None to DM the user)
-LEVEL_UP_CHANNEL = "general"
+LEVEL_UP_CHANNEL = "the-commentary-box"
 
 # Level-up message. Use {member} and {level} as placeholders.
 LEVEL_UP_MESSAGE = "🎉 Oooaahh! {member} just hit **Level {level}**! The fantasy rig is looking good... or the luck's holding out. Either way, get this bloke a beer to celebrate! 🍻"

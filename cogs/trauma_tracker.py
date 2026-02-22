@@ -17,7 +17,7 @@ log = logging.getLogger("CoachBot.TraumaTracker")
 class TraumaTracker(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.seen_articles = helpers.load_json(config.SEEN_ARTICLES_FILE)
+        self.seen_articles = {}
         self.rss_check.start()
 
     def cog_unload(self):
@@ -51,7 +51,7 @@ class TraumaTracker(commands.Cog):
                 self.seen_articles[link] = True # Mark seen immediately
 
             if new_articles:
-                helpers.save_json(config.SEEN_ARTICLES_FILE, self.seen_articles)
+                await self.bot.db.save(config.SEEN_ARTICLES_FILE, self.seen_articles)
                 await self._post_articles(new_articles)
                 
         except Exception as e:
@@ -60,6 +60,9 @@ class TraumaTracker(commands.Cog):
     @rss_check.before_loop
     async def before_rss_check(self):
         await self.bot.wait_until_ready()
+        
+        # Load from DiscordDB first
+        self.seen_articles = await self.bot.db.load(config.SEEN_ARTICLES_FILE)
         
         # Populate seen_articles from channel history to survive Render ephemeral storage restarts
         for guild in self.bot.guilds:

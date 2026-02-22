@@ -16,6 +16,10 @@ class Moderation(commands.Cog):
         self.message_cache = {}
 
     async def cog_load(self):
+        self.bot.loop.create_task(self.initialize_data())
+        
+    async def initialize_data(self):
+        await self.bot.wait_until_ready()
         self.warnings = await self.bot.db.load("warnings.json")
 
     def is_mod(self, member):

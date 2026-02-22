@@ -15,6 +15,10 @@ class KeeperDeadlines(commands.Cog):
         self.deadlines = {}
 
     async def cog_load(self):
+        self.bot.loop.create_task(self.initialize_data())
+        
+    async def initialize_data(self):
+        await self.bot.wait_until_ready()
         self.deadlines = await self.bot.db.load("deadlines.json")
 
     @app_commands.command(name="deadlines", description="View upcoming league deadlines")

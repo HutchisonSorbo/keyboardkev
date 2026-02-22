@@ -17,6 +17,10 @@ class Levelling(commands.Cog):
         self.cooldowns = {} # user_id -> timestamp
 
     async def cog_load(self):
+        self.bot.loop.create_task(self.initialize_data())
+        
+    async def initialize_data(self):
+        await self.bot.wait_until_ready()
         self.xp_data = await self.bot.db.load(config.XP_DATA_FILE)
 
     def get_level_from_xp(self, xp):

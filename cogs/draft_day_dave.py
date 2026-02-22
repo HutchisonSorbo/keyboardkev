@@ -14,6 +14,10 @@ class DraftDayDave(commands.Cog):
         self.draft_config = {}
 
     async def cog_load(self):
+        self.bot.loop.create_task(self.initialize_data())
+        
+    async def initialize_data(self):
+        await self.bot.wait_until_ready()
         self.draft_config = await self.bot.db.load(config.DRAFT_CONFIG_FILE)
         
         if "teams" not in self.draft_config:

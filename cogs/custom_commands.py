@@ -14,6 +14,10 @@ class CustomCommands(commands.Cog):
         self.custom_cmds = {}
 
     async def cog_load(self):
+        self.bot.loop.create_task(self.initialize_data())
+        
+    async def initialize_data(self):
+        await self.bot.wait_until_ready()
         self.custom_cmds = await self.bot.db.load(config.CUSTOM_COMMANDS_FILE)
         await self.setup_default_commands()
 

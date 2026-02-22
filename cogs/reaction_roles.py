@@ -14,6 +14,10 @@ class ReactionRoles(commands.Cog):
         self.rr_data = {}
 
     async def cog_load(self):
+        self.bot.loop.create_task(self.initialize_data())
+
+    async def initialize_data(self):
+        await self.bot.wait_until_ready()
         self.rr_data = await self.bot.db.load("reaction_roles.json")
 
     @app_commands.command(name="reactionrole", description="Link an emoji to a role on a message (Admin only)")

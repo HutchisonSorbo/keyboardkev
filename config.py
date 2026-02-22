@@ -142,7 +142,7 @@ WELCOME_MESSAGE = "🍻 G'day {member}, welcome to **{server}**! Pull up a stool
 
 # Role automatically assigned to every new member (set to None to disable)
 # Must exactly match a role name in your server
-DEFAULT_ROLE = "Coach"
+DEFAULT_ROLE = "Rookie Coach"
 
 # DM sent to new members on join (set to None to disable DMs)
 WELCOME_DM = "G'day mate! Welcome to Keyboard Coaches. Type /help in the server to see what old Kev can do for ya. Catch ya in the banter channel, I'm just heading back to the bar for another schooner. 🍺"
@@ -198,7 +198,6 @@ LEVEL_UP_MESSAGE = "🎉 Oooaahh! {member} just hit **Level {level}**! The fanta
 # Role rewards at specific levels - format: {level_number: "Role Name"}
 # Role must already exist in your server. Set to empty dict {} to disable.
 LEVEL_ROLE_REWARDS = {
-    5:  "Rookie Coach",
     10: "Veteran Coach",
     20: "Fantasy Legend"
 }

@@ -14,7 +14,10 @@ log = logging.getLogger("CoachBot.Reminders")
 class Reminders(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        data = helpers.load_json("data/reminders.json")
+        self.reminders = {}
+        
+    async def cog_load(self):
+        data = await self.bot.db.load("reminders.json")
         self.reminders = data.get("reminders", {})
         self.reminder_check.start()
 
@@ -67,7 +70,7 @@ class Reminders(commands.Cog):
         if to_delete:
             for r_id in to_delete:
                 del self.reminders[r_id]
-            helpers.save_json("data/reminders.json", {"reminders": self.reminders})
+            await self.bot.db.save("reminders.json", {"reminders": self.reminders})
 
     @reminder_check.before_loop
     async def before_reminder_check(self):
@@ -95,7 +98,7 @@ class Reminders(commands.Cog):
         if to_delete:
             for r_id in to_delete:
                 del self.reminders[r_id]
-            helpers.save_json("data/reminders.json", {"reminders": self.reminders})
+            await self.bot.db.save("reminders.json", {"reminders": self.reminders})
 
 
     @app_commands.command(name="remindme", description="Set a personal reminder")
@@ -127,7 +130,7 @@ class Reminders(commands.Cog):
             "message": message
         }
         
-        helpers.save_json("data/reminders.json", {"reminders": self.reminders})
+        await self.bot.db.save("reminders.json", {"reminders": self.reminders})
         
         await interaction.response.send_message(f"✅ I will remind you about that in **{time}**.", ephemeral=True)
 
@@ -154,7 +157,7 @@ class Reminders(commands.Cog):
         
         if reminder_id in self.reminders and self.reminders[reminder_id]["user_id"] == user_id:
             del self.reminders[reminder_id]
-            helpers.save_json("data/reminders.json", {"reminders": self.reminders})
+            await self.bot.db.save("reminders.json", {"reminders": self.reminders})
             await interaction.response.send_message(f"✅ Cancelled reminder `{reminder_id}`", ephemeral=True)
         else:
             await interaction.response.send_message(f"Reminder `{reminder_id}` not found or doesn't belong to you.", ephemeral=True)

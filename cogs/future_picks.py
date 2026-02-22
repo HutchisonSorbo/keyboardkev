@@ -12,8 +12,10 @@ class FuturePicks(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         # data structure: {user_id: {"team_name": str, "picks": [{"year": int, "round": int, "original_owner": str}]}}
-        self.picks_data = helpers.load_json("data/future_picks.json")
-        # We also need to map discord users to DraftDayDave slots ideally, but for now we'll use Discord IDs as the source of truth for ownership
+        self.picks_data = {}
+        
+    async def cog_load(self):
+        self.picks_data = await self.bot.db.load("future_picks.json")
         
     @app_commands.command(name="picks", description="View draft pick capital for a coach")
     @app_commands.describe(member="Optional: View a specific coach's picks")
@@ -23,7 +25,7 @@ class FuturePicks(commands.Cog):
         
         # If they don't have entry, generate their default picks
         if target_id not in self.picks_data:
-            self._initialize_default_picks(target)
+            await self._initialize_default_picks(target)
             
         data = self.picks_data[target_id]
         
@@ -65,8 +67,8 @@ class FuturePicks(commands.Cog):
         from_id = str(from_coach.id)
         to_id = str(to_coach.id)
         
-        if from_id not in self.picks_data: self._initialize_default_picks(from_coach)
-        if to_id not in self.picks_data: self._initialize_default_picks(to_coach)
+        if from_id not in self.picks_data: await self._initialize_default_picks(from_coach)
+        if to_id not in self.picks_data: await self._initialize_default_picks(to_coach)
             
         from_picks = self.picks_data[from_id]["picks"]
         
@@ -92,7 +94,7 @@ class FuturePicks(commands.Cog):
              
         self.picks_data[to_id]["picks"].append(pick_to_move)
         
-        helpers.save_json("data/future_picks.json", self.picks_data)
+        await self.bot.db.save("future_picks.json", self.picks_data)
         
         embed = discord.Embed(
             title="🤝 Pick Trade Executed",
@@ -101,7 +103,7 @@ class FuturePicks(commands.Cog):
         )
         await interaction.response.send_message(embed=embed)
         
-    def _initialize_default_picks(self, member):
+    async def _initialize_default_picks(self, member):
         # By default give them their own picks for the next 2 years for 5 rounds
         current_year = datetime.now().year
         picks = []
@@ -113,7 +115,7 @@ class FuturePicks(commands.Cog):
             "team_name": member.display_name,
             "picks": picks
         }
-        helpers.save_json("data/future_picks.json", self.picks_data)
+        await self.bot.db.save("future_picks.json", self.picks_data)
 
 async def setup(bot):
     await bot.add_cog(FuturePicks(bot))

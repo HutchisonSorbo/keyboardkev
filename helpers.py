@@ -2,6 +2,11 @@ import json
 import os
 import time
 import discord
+import logging
+
+import config
+
+log = logging.getLogger("CoachBot.Helpers")
 
 class SimpleCache:
     def __init__(self):
@@ -20,24 +25,61 @@ class SimpleCache:
         expiry = time.time() + ttl_seconds
         self._cache[key] = (data, expiry)
 
-def load_json(filepath):
-    """Loads a JSON file, returns empty dict if file does not exist yet. Creates the file if missing."""
-    if not os.path.exists(filepath):
-        # Create directory if it doesn't exist
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        save_json(filepath, {})
-        return {}
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
+import io
+import aiohttp
+import asyncio
+
+class DiscordDB:
+    def __init__(self, bot):
+        self.bot = bot
+        self._cache = {}
+
+    async def _get_channel(self):
+        for guild in self.bot.guilds:
+            channel = discord.utils.get(guild.text_channels, name=config.MOD_LOG_CHANNEL)
+            if channel:
+                return channel
+        return None
+
+    async def load(self, filename: str) -> dict:
+        """Loads JSON from the most recent attachment with the given filename in mod-log."""
+        if filename in self._cache:
+            return self._cache[filename]
+            
+        channel = await self._get_channel()
+        if not channel:
+            log.warning(f"Could not find #{config.MOD_LOG_CHANNEL} to load {filename}")
+            return {}
+
+        try:
+            async for message in channel.history(limit=100):
+                if message.author == self.bot.user and message.attachments:
+                    for attachment in message.attachments:
+                        if attachment.filename == filename.split('/')[-1]:
+                            json_bytes = await attachment.read()
+                            data = json.loads(json_bytes.decode('utf-8'))
+                            self._cache[filename] = data
+                            return data
+        except Exception as e:
+            log.error(f"Error reading DiscordDB for {filename}: {e}")
+            
+        self._cache[filename] = {}
         return {}
 
-def save_json(filepath, data):
-    """Saves data to a JSON file with indentation."""
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    with open(filepath, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=4)
+    async def save(self, filename: str, data: dict):
+        """Saves JSON as an attachment in mod-log."""
+        self._cache[filename] = data
+        channel = await self._get_channel()
+        if not channel:
+            log.error(f"Cannot save {filename}, #{config.MOD_LOG_CHANNEL} not found.")
+            return
+
+        try:
+            json_str = json.dumps(data, indent=4)
+            file_obj = discord.File(fp=io.BytesIO(json_str.encode('utf-8')), filename=filename.split('/')[-1])
+            await channel.send(f"💾 Render Database Sync: `{filename.split('/')[-1]}`", file=file_obj)
+        except Exception as e:
+            log.error(f"Error saving to DiscordDB for {filename}: {e}")
 
 def format_embed(title, description, colour, footer=None):
     """Returns a standard discord.Embed object with consistent formatting."""

@@ -12,7 +12,10 @@ log = logging.getLogger("CoachBot.KeeperDeadlines")
 class KeeperDeadlines(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.deadlines = helpers.load_json("data/deadlines.json")
+        self.deadlines = {}
+
+    async def cog_load(self):
+        self.deadlines = await self.bot.db.load("deadlines.json")
 
     @app_commands.command(name="deadlines", description="View upcoming league deadlines")
     async def view_deadlines(self, interaction: discord.Interaction):
@@ -60,7 +63,7 @@ class KeeperDeadlines(commands.Cog):
             return
             
         self.deadlines[name] = dt.isoformat()
-        helpers.save_json("data/deadlines.json", self.deadlines)
+        await self.bot.db.save("deadlines.json", self.deadlines)
         
         await interaction.response.send_message(f"✅ Deadline **'{name}'** set for **{dt.strftime('%d %B %Y at %I:%M %p')}**.")
 
@@ -73,7 +76,7 @@ class KeeperDeadlines(commands.Cog):
             
         if name in self.deadlines:
             del self.deadlines[name]
-            helpers.save_json("data/deadlines.json", self.deadlines)
+            await self.bot.db.save("deadlines.json", self.deadlines)
             await interaction.response.send_message(f"✅ Removed deadline '{name}'.")
         else:
             await interaction.response.send_message(f"Deadline '{name}' not found.", ephemeral=True)

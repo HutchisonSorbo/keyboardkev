@@ -11,10 +11,13 @@ log = logging.getLogger("CoachBot.CustomCommands")
 class CustomCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.custom_cmds = helpers.load_json(config.CUSTOM_COMMANDS_FILE)
-        self.setup_default_commands()
+        self.custom_cmds = {}
 
-    def setup_default_commands(self):
+    async def cog_load(self):
+        self.custom_cmds = await self.bot.db.load(config.CUSTOM_COMMANDS_FILE)
+        await self.setup_default_commands()
+
+    async def setup_default_commands(self):
         defaults = {
             "rules": "Check #rules for the full breakdown of how we operate before I ban ya.",
             "scoring": "Snake draft, 8 teams, 23 rounds. Standard AFL Fantasy scoring. Ask the Commish if confused, I'm too busy having a pint.",
@@ -27,7 +30,7 @@ class CustomCommands(commands.Cog):
                 needs_save = True
                 
         if needs_save:
-            helpers.save_json(config.CUSTOM_COMMANDS_FILE, self.custom_cmds)
+            await self.bot.db.save(config.CUSTOM_COMMANDS_FILE, self.custom_cmds)
 
     @app_commands.command(name="addcommand", description="Creates a new custom command")
     async def addcommand(self, interaction: discord.Interaction, trigger: str, response: str):
@@ -47,7 +50,7 @@ class CustomCommands(commands.Cog):
             return
             
         self.custom_cmds[trigger] = response
-        helpers.save_json(config.CUSTOM_COMMANDS_FILE, self.custom_cmds)
+        await self.bot.db.save(config.CUSTOM_COMMANDS_FILE, self.custom_cmds)
         
         await interaction.response.send_message(f"✅ Added `!{trigger}`")
 
@@ -60,7 +63,7 @@ class CustomCommands(commands.Cog):
         trigger = trigger.lower()
         if trigger in self.custom_cmds:
             del self.custom_cmds[trigger]
-            helpers.save_json(config.CUSTOM_COMMANDS_FILE, self.custom_cmds)
+            await self.bot.db.save(config.CUSTOM_COMMANDS_FILE, self.custom_cmds)
             await interaction.response.send_message(f"✅ Deleted `!{trigger}`")
         else:
             await interaction.response.send_message(f"Command `!{trigger}` not found.", ephemeral=True)
@@ -82,7 +85,7 @@ class CustomCommands(commands.Cog):
             return
             
         self.custom_cmds[trigger] = response
-        helpers.save_json(config.CUSTOM_COMMANDS_FILE, self.custom_cmds)
+        await self.bot.db.save(config.CUSTOM_COMMANDS_FILE, self.custom_cmds)
         
         await interaction.response.send_message(f"✅ Edited `!{trigger}`")
 

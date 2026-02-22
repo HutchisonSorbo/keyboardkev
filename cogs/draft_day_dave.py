@@ -11,11 +11,14 @@ log = logging.getLogger("CoachBot.DraftDayDave")
 class DraftDayDave(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.draft_config = helpers.load_json(config.DRAFT_CONFIG_FILE)
+        self.draft_config = {}
+
+    async def cog_load(self):
+        self.draft_config = await self.bot.db.load(config.DRAFT_CONFIG_FILE)
         
         if "teams" not in self.draft_config:
             self.draft_config["teams"] = config.DEFAULT_TEAMS
-            helpers.save_json(config.DRAFT_CONFIG_FILE, self.draft_config)
+            await self.bot.db.save(config.DRAFT_CONFIG_FILE, self.draft_config)
 
     def in_allowed_channel(self, interaction: discord.Interaction):
         if config.ALLOWED_COMMAND_CHANNELS and interaction.channel.name not in config.ALLOWED_COMMAND_CHANNELS:
@@ -119,7 +122,7 @@ class DraftDayDave(commands.Cog):
             return
             
         self.draft_config["teams"][slot - 1] = name
-        helpers.save_json(config.DRAFT_CONFIG_FILE, self.draft_config)
+        await self.bot.db.save(config.DRAFT_CONFIG_FILE, self.draft_config)
         
         await interaction.response.send_message(f"✅ Slot {slot} is now **{name}**.")
 

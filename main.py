@@ -9,6 +9,7 @@ from threading import Thread
 from flask import Flask
 
 import config
+import helpers
 
 # Setup logging
 logging.basicConfig(
@@ -43,6 +44,7 @@ class CoachBot(commands.Bot):
             help_command=None # Disabling default help command to use our custom one
         )
         self.session = None
+        self.db = helpers.DiscordDB(self)
 
     async def setup_hook(self):
         # Create a shared aiohttp session

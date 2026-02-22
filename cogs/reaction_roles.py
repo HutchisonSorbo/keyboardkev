@@ -11,7 +11,10 @@ log = logging.getLogger("CoachBot.ReactionRoles")
 class ReactionRoles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.rr_data = helpers.load_json("data/reaction_roles.json")
+        self.rr_data = {}
+
+    async def cog_load(self):
+        self.rr_data = await self.bot.db.load("reaction_roles.json")
 
     @app_commands.command(name="reactionrole", description="Link an emoji to a role on a message (Admin only)")
     @app_commands.describe(channel="Channel with the message", message_id="ID of the message", emoji="Emoji to react with", role="Role to give")
@@ -37,7 +40,7 @@ class ReactionRoles(commands.Cog):
             self.rr_data[msg_id_str] = {}
             
         self.rr_data[msg_id_str][emoji] = role.name
-        helpers.save_json("data/reaction_roles.json", self.rr_data)
+        await self.bot.db.save("reaction_roles.json", self.rr_data)
         
         await interaction.response.send_message(f"✅ Users who react with {emoji} to message `{message_id}` will receive the **{role.name}** role.")
 
@@ -71,7 +74,7 @@ class ReactionRoles(commands.Cog):
             if not self.rr_data[message_id]:
                 del self.rr_data[message_id]
                 
-            helpers.save_json("data/reaction_roles.json", self.rr_data)
+            await self.bot.db.save("reaction_roles.json", self.rr_data)
             await interaction.response.send_message(f"✅ Removed reaction role link: {emoji} ➔ {role_name} on message {message_id}.")
         else:
             await interaction.response.send_message("That link doesn't exist.", ephemeral=True)

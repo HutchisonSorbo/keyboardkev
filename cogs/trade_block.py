@@ -13,7 +13,10 @@ class TradeBlock(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         # data structure: {user_id: {"team_name": str, "players": [{"name": str, "description": str, "timestamp": str}]}}
-        self.trade_data = helpers.load_json("data/trade_block.json")
+        self.trade_data = {}
+
+    async def cog_load(self):
+        self.trade_data = await self.bot.db.load("trade_block.json")
 
     @app_commands.command(name="tradeblock_add", description="Add a player to your trade block")
     @app_commands.describe(player="The player you are shopping", looking_for="What you want in return")
@@ -26,7 +29,7 @@ class TradeBlock(commands.Cog):
         
         if user_id not in self.trade_data:
             # Try to figure out their team name from Draft config, or fallback to Discord name
-            draft_config = helpers.load_json(config.DRAFT_CONFIG_FILE)
+            draft_config = await self.bot.db.load(config.DRAFT_CONFIG_FILE)
             team_name = interaction.user.display_name
             # If we had a direct mapping we'd use it, for now display name is best
 
@@ -43,7 +46,7 @@ class TradeBlock(commands.Cog):
             if p["name"].lower() == player.lower():
                 p["description"] = looking_for
                 p["timestamp"] = datetime.now().isoformat()
-                helpers.save_json("data/trade_block.json", self.trade_data)
+                await self.bot.db.save("trade_block.json", self.trade_data)
                 
                 embed = helpers.format_embed(
                     f"🔄 Trade Block Updated: {player}",
@@ -63,7 +66,7 @@ class TradeBlock(commands.Cog):
             "timestamp": datetime.now().isoformat()
         })
         
-        helpers.save_json("data/trade_block.json", self.trade_data)
+        await self.bot.db.save("trade_block.json", self.trade_data)
         
         embed = helpers.format_embed(
             f"🛒 New to the Trade Block: {player}",
@@ -85,7 +88,7 @@ class TradeBlock(commands.Cog):
         self.trade_data[user_id]["players"] = [p for p in self.trade_data[user_id]["players"] if p["name"].lower() != player.lower()]
         
         if len(self.trade_data[user_id]["players"]) < initial_len:
-            helpers.save_json("data/trade_block.json", self.trade_data)
+            await self.bot.db.save("trade_block.json", self.trade_data)
             await interaction.response.send_message(f"✅ Removed **{player}** from your trade block. Off the market.", ephemeral=True)
         else:
              await interaction.response.send_message(f"Couldn't find **{player}** on your trade block. Check spelling.", ephemeral=True)

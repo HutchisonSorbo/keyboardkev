@@ -12,8 +12,11 @@ log = logging.getLogger("CoachBot.Moderation")
 class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.warnings = helpers.load_json(config.WARNINGS_FILE)
+        self.warnings = {}
         self.message_cache = {}
+
+    async def cog_load(self):
+        self.warnings = await self.bot.db.load("warnings.json")
 
     def is_mod(self, member):
         return helpers.has_role(member, config.MOD_ROLE)
@@ -51,7 +54,7 @@ class Moderation(commands.Cog):
             "moderator": moderator
         })
         
-        helpers.save_json(config.WARNINGS_FILE, self.warnings)
+        await self.bot.db.save("warnings.json", self.warnings)
         
         warn_count = len(self.warnings[guild_id][user_id])
         
@@ -125,7 +128,7 @@ class Moderation(commands.Cog):
         
         if guild_id in self.warnings and user_id in self.warnings[guild_id]:
             del self.warnings[guild_id][user_id]
-            helpers.save_json(config.WARNINGS_FILE, self.warnings)
+            await self.bot.db.save("warnings.json", self.warnings)
             
         await interaction.response.send_message(f"✅ Cleared warnings for {member.mention}.")
         await self.log_mod_action(interaction.guild, "CLEAR WARNINGS", member, str(interaction.user), "Manually cleared record")

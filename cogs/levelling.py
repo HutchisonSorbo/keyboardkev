@@ -13,8 +13,11 @@ log = logging.getLogger("CoachBot.Levelling")
 class Levelling(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.xp_data = helpers.load_json(config.XP_DATA_FILE)
+        self.xp_data = {}
         self.cooldowns = {} # user_id -> timestamp
+
+    async def cog_load(self):
+        self.xp_data = await self.bot.db.load(config.XP_DATA_FILE)
 
     def get_level_from_xp(self, xp):
         # level = int(0.1 * sqrt(xp))
@@ -55,7 +58,7 @@ class Levelling(commands.Cog):
         new_level = self.get_level_from_xp(self.xp_data[guild_id][user_id])
         
         # Save every message
-        helpers.save_json(config.XP_DATA_FILE, self.xp_data)
+        await self.bot.db.save(config.XP_DATA_FILE, self.xp_data)
         
         if new_level > old_level:
             await self.handle_level_up(message.author, new_level)
@@ -155,7 +158,7 @@ class Levelling(commands.Cog):
         
         if guild_id in self.xp_data and user_id in self.xp_data[guild_id]:
             self.xp_data[guild_id][user_id] = 0
-            helpers.save_json(config.XP_DATA_FILE, self.xp_data)
+            await self.bot.db.save(config.XP_DATA_FILE, self.xp_data)
             
         await interaction.response.send_message(f"✅ Reset XP for {member.mention}.")
 

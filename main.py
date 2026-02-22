@@ -97,7 +97,7 @@ def run_flask():
     app.run(host='0.0.0.0', port=port)
 
 def keep_alive():
-    t = Thread(target=run_flask)
+    t = Thread(target=run_flask, daemon=True)
     t.start()
 
 if __name__ == "__main__":

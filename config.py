@@ -76,7 +76,7 @@ PING_EVERYONE = True
 RSS_FEED_URL = "https://www.afl.com.au/rss"
 
 # How often to check for new articles (in minutes)
-POLL_INTERVAL_MINUTES = 120
+POLL_INTERVAL_MINUTES = 15
 
 # Only post articles containing at least one of these keywords (case insensitive)
 # Add or remove words to control what gets posted
@@ -138,7 +138,14 @@ DEFAULT_TEAMS = [
 # Message sent when a new member joins
 # Use {member} as a placeholder for the member mention
 # Use {server} as a placeholder for the server name
-WELCOME_MESSAGE = "🍻 G'day {member}, welcome to **{server}**! Pull up a stool at the bar. Have a squiz at #rules-and-prizes to see how we operate. All the general banter happens down in #the-commentary-box, while #afl-fantasy is for serious footy chat. First round is on you. 🍻"
+WELCOME_MESSAGE = """🍻 G'day {member}, welcome to **{server}**! Pull up a stool at the bar. Have a squiz at #rules-and-prizes to see how we operate. All the general banter happens down in #the-commentary-box, while #afl-fantasy is for serious footy chat. First round is on you. 🍻
+
+**Quick Pub Rules:**
+1. No racist, sexist, or homophobic slurs. Instant ban.
+2. Banter is highly encouraged, but keep it about footy or fantasy. Don't make it deeply personal.
+3. Don't spam the chat or tag `@everyone` unless you're the Commissioner.
+4. If you collude on a trade, you're out.
+5. Respect Discord's Terms of Service. Don't be an idiot."""
 
 # Role automatically assigned to every new member (set to None to disable)
 # Must exactly match a role name in your server

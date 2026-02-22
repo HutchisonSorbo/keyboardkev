@@ -270,7 +270,18 @@ ROASTS = [
     "{target}'s draft strategy was clearly: close eyes, click, sink a pint, regret everything.",
     "Sources close to {target} confirm they still think Clayton Oliver is worth a first rounder. What a drongo.",
     "{target} and smart trades: name a less iconic duo. I'll wait at the bar.",
-    "Breaking news: {target}'s bench scored more than their starting side. I need another drink."
+    "Breaking news: {target}'s bench scored more than their starting side. I need another drink.",
+    "I'd rather take advice from a bloke who drafted a retired player than listen to {target}'s trade ideas.",
+    "Watching {target} set their lineup is like watching a dog try to understand a card trick.",
+    "{target} really looked at their team and said 'yeah, this will win'. Delusional.",
+    "If {target} spent half as much time researching as they do talking trash, they might actually win a matchup.",
+    "I've seen better list management from clubs that folded in the 1800s than what {target} is doing.",
+    "{target} trades premiums for mid-pricers like they're collecting footy cards in the schoolyard. Grow up.",
+    "Someone tell {target} that chasing last week's points is exactly why they're anchored to the bottom of the ladder.",
+    "{target} holds onto injured players longer than my local holds onto the Friday meat tray.",
+    "I'd love to know what {target} was thinking with that captain choice, but it's hard to interpret absolute panic.",
+    "{target} treats the waiver wire like it costs real money. Use your claims, ya tightarse.",
+    "Is {target} intentionally tanking, or are they just naturally this bad at fantasy footy?"
 ]
 
 # The System Prompt used to heavily strictly control how the AI responds to /askkev questions.
@@ -314,7 +325,17 @@ DRAFT_ROASTS = [
     "I actually feel bad for {player}. They have to play for {team} now.",
     "{team} thinks {player} is a premium. The rest of the league thinks {team} is an idiot.",
     "The Keeper App just crashed because it couldn't believe {team} took {player} that high.",
-    "Bold strategy from {team} drafting {player}. Let's see if it pays off. Spoiler: It won't."
+    "Bold strategy from {team} drafting {player}. Let's see if it pays off. Spoiler: It won't.",
+    "If drafting was a crime, {team} would be getting life in prison for picking {player} here.",
+    "Did {team} auto-draft {player} or are they just genuinely clueless?",
+    "{player} is a great pick for {team}, assuming they're aiming for the Wooden Spoon.",
+    "I've seen {player} play. {team} clearly hasn't.",
+    "{team} reaching for {player} is the funniest thing I've seen since the 119-point Grand Final.",
+    "Someone check on {team}, I think they had a stroke before clicking draft on {player}.",
+    "Wow. I'd rather draft the bloke who serves the pies at the MCG than {player}.",
+    "{team} selecting {player} proves that some people just don't want to win.",
+    "If {team} thinks {player} is going to help them win a premiership, I've got a bridge to sell them.",
+    "{team} just drafted {player}. The rest of the league is breathing a sigh of relief."
 ]
 
 # Magic 8 Ball responses. Add or remove as you like.

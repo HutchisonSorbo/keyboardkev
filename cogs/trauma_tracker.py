@@ -4,6 +4,7 @@ import feedparser
 import logging
 from datetime import datetime
 import asyncio
+import re
 
 import config
 import helpers
@@ -38,16 +39,8 @@ class TraumaTracker(commands.Cog):
                 if not link or link in self.seen_articles:
                     continue
                 
-                title = entry.get('title', '')
-                summary = entry.get('summary', '')
-                
-                # Check keywords
-                content_to_check = f"{title} {summary}".lower()
-                has_keyword = any(kw.lower() in content_to_check for kw in config.INJURY_KEYWORDS)
-                
-                if has_keyword:
-                    new_articles.append(entry)
-                    self.seen_articles[link] = True # Mark seen immediately
+                new_articles.append(entry)
+                self.seen_articles[link] = True # Mark seen immediately
 
             if new_articles:
                 helpers.save_json(config.SEEN_ARTICLES_FILE, self.seen_articles)
@@ -68,7 +61,10 @@ class TraumaTracker(commands.Cog):
             for entry in reversed(articles): # Oldest first to keep chronological order
                 title = entry.get('title', 'No Title')
                 link = entry.get('link', '')
-                summary = entry.get('summary', 'No summary provided.')
+                raw_summary = entry.get('summary', 'No summary provided.')
+                
+                # Strip HTML tags
+                summary = re.sub('<[^<]+?>', '', raw_summary).strip()
                 
                 # Check keywords to route
                 content_to_check = f"{title} {summary}".lower()
@@ -78,9 +74,6 @@ class TraumaTracker(commands.Cog):
                 
                 if not target_channel:
                     continue
-                title = entry.get('title', 'No Title')
-                link = entry.get('link', '')
-                summary = entry.get('summary', 'No summary provided.')
                 
                 # Truncate summary if too long
                 if len(summary) > 500:

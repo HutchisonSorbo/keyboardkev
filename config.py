@@ -81,9 +81,9 @@ POLL_INTERVAL_MINUTES = 120
 # Only post articles containing at least one of these keywords (case insensitive)
 # Add or remove words to control what gets posted
 INJURY_KEYWORDS = [
-    "injury", "injured", "managed", "test", "out", "selection",
-    "team", "omitted", "recalled", "concussion", "hamstring",
-    "knee", "shoulder", "ankle", "calf", "quad", "groin"
+    "injury", "injured", "managed", "test", "late out", "ruled out", "selection",
+    "omitted", "recalled", "concussion", "hamstring",
+    "knee", "shoulder", "ankle", "calf", "quad", "groin", "suspension", "tribunal"
 ]
 
 # File to track which articles have already been posted

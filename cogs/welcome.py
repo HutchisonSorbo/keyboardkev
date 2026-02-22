@@ -26,6 +26,18 @@ class Welcome(commands.Cog):
         await interaction.response.send_message(f"Welcome message updated for this session:\n\n{message}")
         log.info(f"Welcome message updated by {interaction.user}")
 
+    @app_commands.command(name="forcewelcome", description="Force the bot to welcome a specific user (Admin only)")
+    @app_commands.describe(target="The user to welcome")
+    async def forcewelcome(self, interaction: discord.Interaction, target: discord.Member):
+        if not helpers.has_role(interaction.user, config.DRAFT_ADMIN_ROLE):
+            await interaction.response.send_message("You need the Commissioner role to use this command.", ephemeral=True)
+            return
+            
+        await interaction.response.send_message(f"Forcing welcome message for {target.mention}...", ephemeral=True)
+        # Manually trigger the event listener logic
+        await self.on_member_join(target)
+        log.info(f"Forced welcome message for {target.name} by {interaction.user}")
+
     @commands.Cog.listener()
     async def on_member_join(self, member):
         # Assign role

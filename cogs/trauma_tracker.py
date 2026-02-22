@@ -5,6 +5,9 @@ import logging
 from datetime import datetime
 import asyncio
 import re
+import os
+from bs4 import BeautifulSoup
+import google.generativeai as genai
 
 import config
 import helpers
@@ -52,8 +55,26 @@ class TraumaTracker(commands.Cog):
     @rss_check.before_loop
     async def before_rss_check(self):
         await self.bot.wait_until_ready()
+        
+        # Populate seen_articles from channel history to survive Render ephemeral storage restarts
+        for guild in self.bot.guilds:
+            for channel_name in [config.NEWS_CHANNEL, config.INJURY_CHANNEL]:
+                channel = discord.utils.get(guild.text_channels, name=channel_name)
+                if channel:
+                    try:
+                        async for message in channel.history(limit=50):
+                            if message.embeds and message.author == self.bot.user:
+                                url = message.embeds[0].url
+                                if url:
+                                    self.seen_articles[url] = True
+                    except Exception as e:
+                        log.error(f"Error reading history for {channel_name}: {e}")
 
     async def _post_articles(self, articles):
+        api_key = os.getenv("GEMINI_API_KEY")
+        if api_key:
+            genai.configure(api_key=api_key)
+            
         for guild in self.bot.guilds:
             news_channel = discord.utils.get(guild.text_channels, name=config.NEWS_CHANNEL)
             injury_channel = discord.utils.get(guild.text_channels, name=config.INJURY_CHANNEL)
@@ -63,7 +84,7 @@ class TraumaTracker(commands.Cog):
                 link = entry.get('link', '')
                 raw_summary = entry.get('summary', 'No summary provided.')
                 
-                # Strip HTML tags
+                # Strip HTML tags for the fallback summary
                 summary = re.sub('<[^<]+?>', '', raw_summary).strip()
                 
                 # Check keywords to route
@@ -75,8 +96,29 @@ class TraumaTracker(commands.Cog):
                 if not target_channel:
                     continue
                 
-                # Truncate summary if too long
-                if len(summary) > 500:
+                # Attempt to get a bigger TLDR using Gemini
+                tldr = None
+                if api_key:
+                    try:
+                        async with self.bot.session.get(link) as resp:
+                            if resp.status == 200:
+                                html = await resp.text()
+                                soup = BeautifulSoup(html, 'html.parser')
+                                paragraphs = soup.find_all('p')
+                                article_text = " ".join([p.get_text() for p in paragraphs[:10]])
+                                
+                                if len(article_text) > 200:
+                                    model = genai.GenerativeModel("gemini-2.5-flash")
+                                    prompt = f'You are Keyboard Kev, a funny Australian pub-goer who loves AFL. Summarize this AFL article in 3 short, punchy bullet points to give coaches a quick TLDR. Do not use generic pleasantries, just give the 3 bullet points starting with emojis.\n\nArticle Title: {title}\nArticle Text: {article_text}'
+                                    response = await model.generate_content_async(prompt)
+                                    if response.text:
+                                        tldr = response.text
+                    except Exception as e:
+                        log.error(f"Failed to generate custom TLDR for {link}: {e}")
+                
+                if tldr:
+                    summary = tldr
+                elif len(summary) > 500:
                     summary = summary[:497] + "..."
                 
                 embed = helpers.format_embed(

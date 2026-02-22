@@ -26,7 +26,12 @@ class TraumaTracker(commands.Cog):
     @tasks.loop(minutes=config.POLL_INTERVAL_MINUTES)
     async def rss_check(self):
         try:
-            async with self.bot.session.get(config.RSS_FEED_URL) as response:
+            # AFL.com.au uses Cloudflare, which blocks default python user agents. We must provide one.
+            headers = {
+                "User-Agent": "KeyboardCoachesDiscordBot/1.0",
+                "Accept": "application/rss+xml, application/xml, text/xml, */*"
+            }
+            async with self.bot.session.get(config.RSS_FEED_URL, headers=headers) as response:
                 if response.status != 200:
                     log.error(f"RSS check failed: Status {response.status}")
                     return

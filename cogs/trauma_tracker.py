@@ -124,8 +124,8 @@ class TraumaTracker(commands.Cog):
                                         log.error(f"Failed to generate news TLDR: {e}")
                                         
                                     # Prompt for Injury (only if keywords matched to save API calls, or just always do it?)
-                                    # Actually let's just do it if it has keywords so we don't spam the API
-                                    if has_injury_keywords:
+                                    # We also check if news_tldr is None, in case it is purely an injury article we missed keywords for
+                                    if has_injury_keywords or news_tldr is None:
                                         try:
                                             injury_prompt = f'You are Keyboard Kev, a funny Australian pub-goer who loves AFL. Summarize the AFL injury, medical and suspension updates from this article in 4-5 short, punchy bullet points starting with emojis to give coaches a quick TLDR. Focus specifically on INJURIES and availability. If there are NO injuries or suspensions mentioned, reply ONLY with "NO_INJURIES".\n\nArticle Title: {title}\nArticle Text: {article_text}'
                                             resp_injury = await model.generate_content_async(injury_prompt)

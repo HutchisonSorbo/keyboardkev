@@ -83,7 +83,9 @@ POLL_INTERVAL_MINUTES = 15
 INJURY_KEYWORDS = [
     "injury", "injured", "managed", "test", "late out", "ruled out", "selection",
     "omitted", "recalled", "concussion", "hamstring",
-    "knee", "shoulder", "ankle", "calf", "quad", "groin", "suspension", "tribunal"
+    "knee", "shoulder", "ankle", "calf", "quad", "groin", "suspension", "tribunal",
+    "surgery", "broken", "breaking", "fracture", "finger", "thumb", "toe", "foot",
+    "scan", "scans", "operation", "smashed"
 ]
 
 # File to track which articles have already been posted

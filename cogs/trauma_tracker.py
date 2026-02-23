@@ -95,17 +95,13 @@ class TraumaTracker(commands.Cog):
                 # Strip HTML tags for the fallback summary
                 summary = re.sub('<[^<]+?>', '', raw_summary).strip()
                 
-                # Check keywords to route
+                # Check keywords to route roughly
                 content_to_check = f"{title} {summary}".lower()
-                is_injury = any(kw.lower() in content_to_check for kw in config.INJURY_KEYWORDS)
+                has_injury_keywords = any(kw.lower() in content_to_check for kw in config.INJURY_KEYWORDS)
                 
-                target_channel = injury_channel if is_injury else news_channel
+                news_tldr = None
+                injury_tldr = None
                 
-                if not target_channel:
-                    continue
-                
-                # Attempt to get a bigger TLDR using Gemini
-                tldr = None
                 if api_key:
                     try:
                         async with self.bot.session.get(link) as resp:
@@ -117,34 +113,80 @@ class TraumaTracker(commands.Cog):
                                 
                                 if len(article_text) > 200:
                                     model = genai.GenerativeModel("gemini-2.5-flash")
-                                    prompt = f'You are Keyboard Kev, a funny Australian pub-goer who loves AFL. Summarize this AFL article in 3 short, punchy bullet points to give coaches a quick TLDR. Do not use generic pleasantries, just give the 3 bullet points starting with emojis.\n\nArticle Title: {title}\nArticle Text: {article_text}'
-                                    response = await model.generate_content_async(prompt)
-                                    if response.text:
-                                        tldr = response.text
+                                    
+                                    # Prompt for News
+                                    try:
+                                        news_prompt = f'You are Keyboard Kev, a funny Australian pub-goer who loves AFL. Summarize the general AFL news from this article in 4-5 short, punchy bullet points starting with emojis to give coaches a quick TLDR. Focus specifically on the NEWS and details, NOT injuries. If there is absolutely NO general news (e.g. it is purely an injury update), reply ONLY with "NO_NEWS".\n\nArticle Title: {title}\nArticle Text: {article_text}'
+                                        resp_news = await model.generate_content_async(news_prompt)
+                                        if resp_news.text and "NO_NEWS" not in resp_news.text:
+                                            news_tldr = resp_news.text
+                                    except Exception as e:
+                                        log.error(f"Failed to generate news TLDR: {e}")
+                                        
+                                    # Prompt for Injury (only if keywords matched to save API calls, or just always do it?)
+                                    # Actually let's just do it if it has keywords so we don't spam the API
+                                    if has_injury_keywords:
+                                        try:
+                                            injury_prompt = f'You are Keyboard Kev, a funny Australian pub-goer who loves AFL. Summarize the AFL injury, medical and suspension updates from this article in 4-5 short, punchy bullet points starting with emojis to give coaches a quick TLDR. Focus specifically on INJURIES and availability. If there are NO injuries or suspensions mentioned, reply ONLY with "NO_INJURIES".\n\nArticle Title: {title}\nArticle Text: {article_text}'
+                                            resp_injury = await model.generate_content_async(injury_prompt)
+                                            if resp_injury.text and "NO_INJURIES" not in resp_injury.text:
+                                                injury_tldr = resp_injury.text
+                                        except Exception as e:
+                                            log.error(f"Failed to generate injury TLDR: {e}")
                     except Exception as e:
-                        log.error(f"Failed to generate custom TLDR for {link}: {e}")
+                        log.error(f"Failed to fetch {link}: {e}")
                 
-                if tldr:
-                    summary = tldr
-                elif len(summary) > 500:
-                    summary = summary[:497] + "..."
-                
-                embed = helpers.format_embed(
-                    title=title,
-                    description=summary,
-                    colour=config.COLOUR_AFL,
-                    footer="Source: AFL.com.au News"
-                )
-                embed.url = link
-                
-                # Try to get published time
-                if 'published' in entry:
-                    embed.set_footer(text=f"AFL News • {entry.published}")
-                
-                try:
-                    await target_channel.send(embed=embed)
-                except discord.Forbidden:
-                    log.error(f"Missing permissions to post news in {guild.name} #{target_channel.name}")
+                # Fallbacks if LLM fails or is disabled
+                if not news_tldr and not injury_tldr:
+                    # Legacy fallback logic
+                    target_channel = injury_channel if has_injury_keywords else news_channel
+                    if target_channel:
+                        embed = helpers.format_embed(
+                            title=title,
+                            description=summary[:497] + "..." if len(summary) > 500 else summary,
+                            colour=config.COLOUR_AFL,
+                            footer="Source: AFL.com.au News"
+                        )
+                        embed.url = link
+                        if 'published' in entry:
+                            embed.set_footer(text=f"AFL News • {entry.published}")
+                        try:
+                            await target_channel.send(embed=embed)
+                        except discord.Forbidden:
+                            log.error(f"Missing permissions to post news in {guild.name}")
+                    continue
+
+                # Post News
+                if news_tldr and news_channel:
+                    embed = helpers.format_embed(
+                        title=f"📰 {title}",
+                        description=news_tldr,
+                        colour=config.COLOUR_AFL,
+                        footer="Source: AFL.com.au News"
+                    )
+                    embed.url = link
+                    if 'published' in entry:
+                        embed.set_footer(text=f"AFL News • {entry.published}")
+                    try:
+                        await news_channel.send(embed=embed)
+                    except discord.Forbidden:
+                        log.error(f"Missing permissions to post in {news_channel.name}")
+                        
+                # Post Injury
+                if injury_tldr and injury_channel:
+                    embed = helpers.format_embed(
+                        title=f"🚑 {title}",
+                        description=injury_tldr,
+                        colour=config.COLOUR_MOD,
+                        footer="Source: AFL.com.au Injuries"
+                    )
+                    embed.url = link
+                    if 'published' in entry:
+                        embed.set_footer(text=f"AFL Injuries • {entry.published}")
+                    try:
+                        await injury_channel.send(embed=embed)
+                    except discord.Forbidden:
+                        log.error(f"Missing permissions to post in {injury_channel.name}")
 
 async def setup(bot):
     await bot.add_cog(TraumaTracker(bot))

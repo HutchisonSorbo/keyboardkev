@@ -15,29 +15,28 @@ class StatmanStan(commands.Cog):
         self.bot = bot
         self.cache = helpers.SimpleCache()
 
-    async def fetch_squiggle(self, endpoint, params=None):
-        url = f"{config.SQUIGGLE_BASE_URL}?q={endpoint}"
-        if params:
-            for k, v in params.items():
-                url += f"&{k}={v}"
-                
+    async def fetch_fantasy_players(self):
+        url = "https://fantasy.afl.com.au/data/afl/players.json"
         cached = self.cache.get(url)
         if cached:
             return cached
             
-        headers = {"User-Agent": config.SQUIGGLE_USER_AGENT}
+        headers = {
+            "User-Agent": config.SQUIGGLE_USER_AGENT,
+            "Accept-Encoding": "gzip"
+        }
         
         try:
             async with self.bot.session.get(url, headers=headers) as response:
                 if response.status == 200:
                     data = await response.json()
-                    self.cache.set(url, data, config.API_CACHE_TTL_SECONDS)
+                    self.cache.set(url, data, 3600)
                     return data
                 else:
-                    log.error(f"Squiggle API error: {response.status} for {url}")
+                    log.error(f"Fantasy API error: {response.status} for {url}")
                     return None
         except Exception as e:
-            log.error(f"Exception fetching Squiggle: {e}")
+            log.error(f"Exception fetching Fantasy: {e}")
             return None
 
     def in_allowed_channel(self, interaction: discord.Interaction):
@@ -54,35 +53,45 @@ class StatmanStan(commands.Cog):
             
         await interaction.response.defer()
         
-        players_data = await self.fetch_squiggle("players", {"year": datetime.now().year})
-        if not players_data or "players" not in players_data:
-            await interaction.followup.send("Failed to fetch player list from Squiggle API.")
+        players_data = await self.fetch_fantasy_players()
+        if not players_data:
+            await interaction.followup.send("Failed to fetch player list from AFL Fantasy.")
             return
             
-        player_names = [p.get("name") for p in players_data["players"]]
+        player_names = [f'{p.get("first_name")} {p.get("last_name")}' for p in players_data]
         match, score = process.extractOne(player, player_names, scorer=fuzz.token_sort_ratio)
         
         if score < config.FUZZY_MATCH_THRESHOLD:
             await interaction.followup.send(f"Couldn't find a close match for '{player}'. Did you mean '{match}' ({score}% match)? Please check spelling.")
             return
             
-        matched_player = next((p for p in players_data["players"] if p.get("name") == match), None)
+        matched_player = next((p for p in players_data if f'{p.get("first_name")} {p.get("last_name")}' == match), None)
         if not matched_player:
             await interaction.followup.send("Error retrieving player data.")
             return
             
         embed = discord.Embed(title=f"Stats for {match}", color=config.COLOUR_STATS)
+        stats = matched_player.get("stats", {})
         
-        team = matched_player.get("team", "Unknown Team")
-        embed.description = f"**Team:** {team}"
+        avg = stats.get("avg_points", 0)
+        total = stats.get("total_points", 0)
+        games = stats.get("games_played", 0)
+        high = stats.get("high_score", 0)
+        last3 = stats.get("last_3_avg", 0)
         
-        # As Squiggle API is primarily match-based, this is a placeholder for real stats
-        embed.add_field(name="Season Average", value="85.4 pts", inline=False)
+        # Format the description
+        embed.description = f"**Status:** {matched_player.get('status', 'Unknown').title()}"
         
-        recent_games = "Round 5: 90\nRound 4: 105\nRound 3: 72\nRound 2: 88\nRound 1: 91"
-        embed.add_field(name=f"Last {config.RECENT_GAMES_TO_SHOW} Games", value=recent_games, inline=False)
+        embed.add_field(name="Season Average", value=f"{avg} pts", inline=True)
+        embed.add_field(name="Last 3 Avg", value=f"{last3} pts", inline=True)
+        embed.add_field(name="High Score", value=f"{high} pts", inline=True)
+        embed.add_field(name="Total Points", value=f"{total} pts (in {games} games)", inline=False)
         
-        embed.set_footer(text="Powered by Squiggle API")
+        query = match.replace(' ', '+')
+        footywire_url = f"https://www.footywire.com/afl/footy/ft_search_template?search_name={query}"
+        embed.add_field(name="More Stats", value=f"[View {match} on Footywire]({footywire_url})", inline=False)
+        
+        embed.set_footer(text="Powered by AFL Fantasy Data")
         await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="topscorers", description="Top 10 highest averaging players")
@@ -92,7 +101,27 @@ class StatmanStan(commands.Cog):
             return
             
         await interaction.response.defer()
-        await interaction.followup.send("Fetching top scorers... (Note: this relies on aggregate game data)")
+        players_data = await self.fetch_fantasy_players()
+        if not players_data:
+            await interaction.followup.send("Failed to fetch player list from AFL Fantasy.")
+            return
+            
+        # Filter out players who haven't played or have 0 avg
+        valid_players = [p for p in players_data if p.get("stats", {}).get("avg_points", 0) > 0 and p.get("stats", {}).get("games_played", 0) >= 3]
+        valid_players.sort(key=lambda x: x.get("stats", {}).get("avg_points", 0), reverse=True)
+        
+        top10 = valid_players[:10]
+        
+        embed = discord.Embed(title="Top 10 Highest Averaging Players", color=config.COLOUR_STATS)
+        desc = ""
+        for i, p in enumerate(top10, 1):
+            name = f"{p.get('first_name')} {p.get('last_name')}"
+            avg = p.get("stats", {}).get("avg_points", 0)
+            desc += f"**{i}.** {name} - {avg} pts\n"
+            
+        embed.description = desc
+        embed.set_footer(text="Powered by AFL Fantasy Data (Minimum 3 games)")
+        await interaction.followup.send(embed=embed)
 
     @app_commands.command(name="compare", description="Compare two players")
     async def compare(self, interaction: discord.Interaction, player1: str, player2: str):
@@ -102,10 +131,32 @@ class StatmanStan(commands.Cog):
         
         await interaction.response.defer()
         
-        embed = discord.Embed(title=f"Comparison: {player1} vs {player2}", color=config.COLOUR_STATS)
-        embed.add_field(name=player1, value="Avg: 85.4\nLast 3: 90, 105, 72", inline=True)
-        embed.add_field(name=player2, value="Avg: 92.1\nLast 3: 88, 95, 110", inline=True)
-        embed.set_footer(text="Powered by Squiggle API")
+        players_data = await self.fetch_fantasy_players()
+        if not players_data:
+            await interaction.followup.send("Failed to fetch player list from AFL Fantasy.")
+            return
+            
+        player_names = [f'{p.get("first_name")} {p.get("last_name")}' for p in players_data]
+        
+        match1, score1 = process.extractOne(player1, player_names, scorer=fuzz.token_sort_ratio)
+        match2, score2 = process.extractOne(player2, player_names, scorer=fuzz.token_sort_ratio)
+        
+        if score1 < config.FUZZY_MATCH_THRESHOLD or score2 < config.FUZZY_MATCH_THRESHOLD:
+            await interaction.followup.send(f"Couldn't find close matches. Did you mean '{match1}' and '{match2}'? Please check spelling.")
+            return
+            
+        p1_data = next((p for p in players_data if f'{p.get("first_name")} {p.get("last_name")}' == match1), None)
+        p2_data = next((p for p in players_data if f'{p.get("first_name")} {p.get("last_name")}' == match2), None)
+        
+        embed = discord.Embed(title=f"Comparison: {match1} vs {match2}", color=config.COLOUR_STATS)
+        
+        def get_stats_str(p_data):
+            stats = p_data.get("stats", {})
+            return f"Avg: {stats.get('avg_points', 0)}\nLast 3: {stats.get('last_3_avg', 0)}\nGames: {stats.get('games_played', 0)}"
+            
+        embed.add_field(name=match1, value=get_stats_str(p1_data), inline=True)
+        embed.add_field(name=match2, value=get_stats_str(p2_data), inline=True)
+        embed.set_footer(text="Powered by AFL Fantasy Data")
         
         await interaction.followup.send(embed=embed)
 

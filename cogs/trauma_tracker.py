@@ -116,7 +116,7 @@ class TraumaTracker(commands.Cog):
                                     
                                     # Prompt for News
                                     try:
-                                        news_prompt = f'You are Keyboard Kev, a funny Australian pub-goer who loves AFL. Summarize the general AFL news from this article in 4-5 short, punchy bullet points starting with emojis to give coaches a quick TLDR. Focus specifically on the NEWS and details, NOT injuries. If there is absolutely NO general news (e.g. it is purely an injury update), reply ONLY with "NO_NEWS".\n\nArticle Title: {title}\nArticle Text: {article_text}'
+                                        news_prompt = f'You are Keyboard Kev, an intensely knowledgeable Australian AFL Fantasy expert with the exact personality, tone, and knowledge of Warnie from DT Talk. Summarize the general AFL news from this article in 4-5 short, punchy bullet points starting with emojis to give coaches a quick TLDR. Focus specifically on the NEWS and details, NOT injuries. If there is absolutely NO general news (e.g. it is purely an injury update), reply ONLY with "NO_NEWS".\n\nArticle Title: {title}\nArticle Text: {article_text}'
                                         resp_news = await model.generate_content_async(news_prompt)
                                         if resp_news.text and "NO_NEWS" not in resp_news.text:
                                             news_tldr = resp_news.text
@@ -127,7 +127,7 @@ class TraumaTracker(commands.Cog):
                                     # We also check if news_tldr is None, in case it is purely an injury article we missed keywords for
                                     if has_injury_keywords or news_tldr is None:
                                         try:
-                                            injury_prompt = f'You are Keyboard Kev, a funny Australian pub-goer who loves AFL. Summarize the AFL injury, medical and suspension updates from this article in 4-5 short, punchy bullet points starting with emojis to give coaches a quick TLDR. Focus specifically on INJURIES and availability. If there are NO injuries or suspensions mentioned, reply ONLY with "NO_INJURIES".\n\nArticle Title: {title}\nArticle Text: {article_text}'
+                                            injury_prompt = f'You are Keyboard Kev, an intensely knowledgeable Australian AFL Fantasy expert with the exact personality, tone, and knowledge of Warnie from DT Talk. Summarize the AFL injury, medical and suspension updates from this article in 4-5 short, punchy bullet points starting with emojis to give coaches a quick TLDR. Focus specifically on INJURIES and availability. If there are NO injuries or suspensions mentioned, reply ONLY with "NO_INJURIES".\n\nArticle Title: {title}\nArticle Text: {article_text}'
                                             resp_injury = await model.generate_content_async(injury_prompt)
                                             if resp_injury.text and "NO_INJURIES" not in resp_injury.text:
                                                 injury_tldr = resp_injury.text

@@ -31,7 +31,7 @@ class KnowledgeBase(commands.Cog):
                 # but we will rely on the model itself knowing the instruction to "search" or use its latest knowledge.
                 self.model = genai.GenerativeModel(
                     model_name="gemini-2.5-flash", 
-                    system_instruction=config.KEV_PERSONA_PROMPT,
+                    system_instruction=config.WARNIE_PERSONA_PROMPT,
                     tools='google_search_retrieval'
                 )
                 self.client_ready = True
@@ -79,7 +79,7 @@ class KnowledgeBase(commands.Cog):
             
         except Exception as e:
             log.error(f"Error calling Gemini API: {e}")
-            await interaction.followup.send("I've had too many frothies and my brain stopped working. Ask me again later.")
+            await interaction.followup.send("Sorry mate, I can't look at that right now. Try again later.")
 
     @app_commands.command(name="kev_verdict", description="Get Kev's hot take on a trade or draft pick")
     @app_commands.describe(topic="The trade or pick you want Kev's opinion on")

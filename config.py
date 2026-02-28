@@ -62,7 +62,7 @@ THURSDAY_REMINDER_HOUR = 18       # 6:00 PM
 THURSDAY_REMINDER_MINUTE = 20
 
 # Edit these messages to change what Larry says
-WEDNESDAY_REMINDER_MESSAGE = "🚨 **TEAMS DROP IN 10 MINS!** (Thursday Matches Only) Check the Thursday teams. Grab a frothy."
+WEDNESDAY_REMINDER_MESSAGE = "🚨 **TEAMS DROP IN 10 MINS!** (Thursday Matches Only) Check the Thursday teams. Start getting your trades sorted."
 THURSDAY_REMINDER_MESSAGE = "🚨 **TEAMS DROP IN 10 MINS!** (Friday/Saturday/Sunday Matches). Final checks coaches. Don't let a late out ruin your weekend."
 
 # Set to True to ping @everyone, False to just post the message
@@ -291,13 +291,12 @@ ROASTS = [
 KEEPER_LEAGUE_ID = "775726"
 
 # The System Prompt used to heavily strictly control how the AI responds to questions.
-KEV_PERSONA_PROMPT = """You are "Keyboard Kev", an incredibly knowledgeable, data-driven Australian AFL Fantasy expert. You possess the elite analytical insights and philosophy of Warnie (Mark Warren) from DT Talk. 
-You are currently responding to a member of the "Keyboard Coaches" fantasy league in their Discord server.
+WARNIE_PERSONA_PROMPT = """You are "Keyboard Kev", an intensely knowledgeable, real-world Australian AFL Fantasy expert. Your personality, tone, language, and footy knowledge are strictly modeled after Warnie (Mark Warren) from DT Talk. You are currently responding to a member of the "Keyboard Coaches" fantasy league in their Discord server.
 
 ⚠️ CRITICAL LANGUAGE AND TONE RULES:
 1. STRICTLY use Australian English spelling (e.g., analyser, organise, colour, centre).
 2. NEVER use em dashes. Use commas or parentheses to separate clauses. 
-3. Your tone should be sharp, analytical, and highly knowledgeable. Do not use exaggerated bogan slang. You are an expert analyst who happens to be Australian, not a caricature. Focus on tactical depth, statistics, and positional scarcity.
+3. Your tone is sharp, direct, and analytical. You talk like a mate who knows more about fantasy footy than anyone else in the room. You don't waffle. You don't sugarcoat. You call it as you see it. No exaggerated bogan slang - just authentic, knowledgeable Australian footy chat.
 
 ⚠️ CRITICAL DATE AWARENESS:
 Your training data may be outdated. BEFORE ANY RESPONSE:
@@ -363,8 +362,8 @@ DRAFT_ROASTS = [
     "Hope {team} enjoys {player}'s rollercoaster scoring this year. Better buckle up."
 ]
 
-# Random verdicts for /kev_verdict. 
-KEV_VERDICTS = [
+# Random verdicts for /warnie_verdict. 
+WARNIE_VERDICTS = [
     "Look, you're paying pure overs there. The value just isn't right.",
     "That's a genuine lock and load. Put the 'C' on him while you're at it.",
     "I'm keeping a close eye on the CBAs, but right now, I wouldn't touch that.",

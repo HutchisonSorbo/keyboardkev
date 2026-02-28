@@ -53,17 +53,17 @@ ALLOWED_COMMAND_CHANNELS = None
 # Timezone for all scheduling (uses pytz timezone names)
 TIMEZONE = "Australia/Melbourne"
 
-# First reminder time (when teams drop) - 24hr format
-FIRST_REMINDER_HOUR = 18       # 6:00 PM
-FIRST_REMINDER_MINUTE = 0
+# First reminder time (when Wednesday teams drop) - 24hr format
+WEDNESDAY_REMINDER_HOUR = 18       # 6:00 PM
+WEDNESDAY_REMINDER_MINUTE = 20
 
-# Final lockout warning time - 24hr format
-FINAL_REMINDER_HOUR = 19       # 7:00 PM
-FINAL_REMINDER_MINUTE = 50
+# Final lockout warning time (when Thursday teams drop) - 24hr format
+THURSDAY_REMINDER_HOUR = 18       # 6:00 PM
+THURSDAY_REMINDER_MINUTE = 20
 
 # Edit these messages to change what Larry says
-FIRST_REMINDER_MESSAGE = "🚨 **TEAMS DROP IN 20 MINS!** Righto coaches, final checks. Make sure your structures hold up and check the emergencies. Don't let a late out ruin your weekend. Grab a frothy and lock it in."
-FINAL_REMINDER_MESSAGE = "⏰ **FINAL WARNING - 10 MINS 'TIL LOCKOUT.** If you haven't locked your captain yet, what are you doing? Time to put the tools down and let the boys play."
+WEDNESDAY_REMINDER_MESSAGE = "🚨 **TEAMS DROP IN 10 MINS!** (Thursday Matches Only) Check the Thursday teams. Grab a frothy."
+THURSDAY_REMINDER_MESSAGE = "🚨 **TEAMS DROP IN 10 MINS!** (Friday/Saturday/Sunday Matches). Final checks coaches. Don't let a late out ruin your weekend."
 
 # Set to True to ping @everyone, False to just post the message
 PING_EVERYONE = True
@@ -114,6 +114,9 @@ FUZZY_MATCH_THRESHOLD = 60
 # -----------------------------------------------------------------------------
 # DRAFT DAY DAVE - Snake Draft Settings
 # -----------------------------------------------------------------------------
+
+# Date and time of the draft (Format: YYYY-MM-DD HH:MM:SS in the configured timezone)
+DRAFT_DATETIME = "2026-03-01 19:30:00"
 
 # Total teams in the league
 TOTAL_TEAMS = 8
@@ -282,13 +285,23 @@ ROASTS = [
     "Look, {target} has a plan. It's not a good one, but it's a plan."
 ]
 
-# The System Prompt used to heavily strictly control how the AI responds to /askkev questions.
-KEV_PERSONA_PROMPT = """You are "Keyboard Kev", an incredibly knowledgeable, sharp-witted Australian AFL Fantasy veteran. You possess the elite data-driven insights and philosophy of Warnie (Mark Warren) from DT Talk, but you deliver that knowledge with your own unique, abrasive, and hilarious pub humor.
+# -----------------------------------------------------------------------------
+# ROSTER TRACKER
+# -----------------------------------------------------------------------------
+KEEPER_LEAGUE_ID = "775726"
+
+# The System Prompt used to heavily strictly control how the AI responds to questions.
+KEV_PERSONA_PROMPT = """You are "Keyboard Kev", an incredibly knowledgeable, data-driven Australian AFL Fantasy expert. You possess the elite analytical insights and philosophy of Warnie (Mark Warren) from DT Talk. 
 You are currently responding to a member of the "Keyboard Coaches" fantasy league in their Discord server.
+
+⚠️ CRITICAL LANGUAGE AND TONE RULES:
+1. STRICTLY use Australian English spelling (e.g., analyser, organise, colour, centre).
+2. NEVER use em dashes. Use commas or parentheses to separate clauses. 
+3. Your tone should be sharp, analytical, and highly knowledgeable. Do not use exaggerated bogan slang. You are an expert analyst who happens to be Australian, not a caricature. Focus on tactical depth, statistics, and positional scarcity.
 
 ⚠️ CRITICAL DATE AWARENESS:
 Your training data may be outdated. BEFORE ANY RESPONSE:
-1. Check current date and time in Kilmore, Victoria, Australia (AEDT/AEST)
+1. Check current date and time in Kilmore, Victoria, Australia (AEDT/AEST).
 2. State: "Today is [date] in Kilmore. Current AFL round is [X]."
 3. Only use data from THIS WEEK. If data seems stale, search again with today's date.
 
@@ -310,12 +323,12 @@ TIPPING:
 - Only diverge from DBTD if: confirmed late team change, extreme weather, or my tracked accuracy exceeds 75%
 
 RESPONSE PROTOCOL:
-1. State date/time in Kilmore, Victoria
-2. Confirm current AFL round
-3. Search web for live data before responding
-4. Tipping: DBTD URL only, never training data
-5. Keep your answers concise, no longer than 3-4 paragraphs. This is for a Discord chat.
-6. Your delivery should be brutally funny and full of sharp Australian wit. You can banter, roast bad decisions, and occasionally mention having a cold beer.
+1. State date/time in Kilmore, Victoria.
+2. Confirm current AFL round.
+3. Search web for live data before responding.
+4. Tipping: DBTD URL only, never training data.
+5. Keep your answers concise, ideally 3 to 4 short paragraphs. This is for a Discord chat.
+6. Provide deep statistical reasoning. Rely on break-evens, Time on Ground, Centre Bounce Attendances, and Calvin's Scale of Hardness for upcoming fixtures.
 
 ---
 LEAGUE CHARTER & RULES (You must know this perfectly):

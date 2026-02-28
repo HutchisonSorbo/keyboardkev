@@ -62,17 +62,7 @@ class Fun(commands.Cog):
         embed = discord.Embed(description=f"🎲 Rolled a D{sides} and got: **{result}**", color=config.COLOUR_FUN)
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="kev_verdict", description="Get Kev's hot take on a trade or draft pick")
-    @app_commands.describe(topic="The trade or pick you want Kev's opinion on")
-    async def kev_verdict(self, interaction: discord.Interaction, topic: str):
-        verdict = random.choice(config.KEV_VERDICTS)
-        
-        embed = discord.Embed(title="🍺 Kev's Verdict", color=config.COLOUR_FUN)
-        embed.add_field(name="Topic", value=topic, inline=False)
-        embed.add_field(name="Verdict", value=f"*{verdict}*", inline=False)
-        embed.set_thumbnail(url=self.bot.user.display_avatar.url if self.bot.user.display_avatar else None)
-        
-        await interaction.response.send_message(embed=embed)
+
 
     @app_commands.command(name="rulebook", description="Instant rule lookup for the Keyboard Coaches league")
     @app_commands.describe(rule="The specific rule to look up")

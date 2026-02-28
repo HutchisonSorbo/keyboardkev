@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 import logging
 
 import config
@@ -23,6 +23,47 @@ class DraftDayDave(commands.Cog):
         if "teams" not in self.draft_config:
             self.draft_config["teams"] = config.DEFAULT_TEAMS
             await self.bot.db.save(config.DRAFT_CONFIG_FILE, self.draft_config)
+            
+        self.draft_reminder.start()
+
+    def cog_unload(self):
+        self.draft_reminder.cancel()
+
+    @tasks.loop(minutes=1)
+    async def draft_reminder(self):
+        try:
+            from datetime import datetime
+            import pytz
+            tz = pytz.timezone(config.TIMEZONE)
+            now = datetime.now(tz)
+            draft_time = datetime.strptime(config.DRAFT_DATETIME, "%Y-%m-%d %H:%M:%S")
+            draft_time = tz.localize(draft_time)
+            
+            # If we are strictly between 60 and 59 minutes before the draft
+            time_until_draft = draft_time - now
+            if 3540 <= time_until_draft.total_seconds() <= 3600:
+                # Send the message and cancel the loop
+                for guild in self.bot.guilds:
+                    channel = discord.utils.get(guild.text_channels, name=config.AFL_CHANNEL)
+                    if channel:
+                        msg = "🚨 **1 HOUR UNTIL PRE-SEASON DRAFT!** 🚨\n\nMake sure your queues are organised please!\n\nThe draft begins at exactly 7:30pm AEDT."
+                        if config.PING_EVERYONE:
+                            msg = f"@everyone\n{msg}"
+                        try:
+                            await channel.send(msg)
+                            log.info("Sent pre-draft reminder successfully.")
+                        except discord.Forbidden:
+                            log.error(f"Missing permissions to send reminder in {guild.name} #{config.AFL_CHANNEL}")
+                
+                # We completed the one-time broadcast, so we can stop checking
+                self.draft_reminder.cancel()
+                
+        except Exception as e:
+            log.error(f"Error checking draft reminder: {e}")
+
+    @draft_reminder.before_loop
+    async def before_draft_reminder(self):
+        await self.bot.wait_until_ready()
 
     def in_allowed_channel(self, interaction: discord.Interaction):
         if config.ALLOWED_COMMAND_CHANNELS and interaction.channel.name not in config.ALLOWED_COMMAND_CHANNELS:

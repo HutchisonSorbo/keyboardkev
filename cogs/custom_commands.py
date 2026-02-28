@@ -24,8 +24,8 @@ class CustomCommands(commands.Cog):
     async def setup_default_commands(self):
         defaults = {
             "rules": "Check #rules for the full breakdown of how we operate before I ban ya.",
-            "scoring": "Snake draft, 8 teams, 23 rounds. Standard AFL Fantasy scoring. Ask the Commish if confused, I'm too busy having a pint.",
-            "prizes": "Prizes TBC. Mainly bragging rights and the eternal shame of last place. And you have to buy Kev a beer."
+            "scoring": "Snake draft, 8 teams, 23 rounds. Standard AFL Fantasy scoring. Ask the Commish if confused, I'm too busy crunching numbers.",
+            "prizes": "Prizes TBC. Mainly bragging rights and the eternal shame of last place. And you have to buy the Commish a beer."
         }
         needs_save = False
         for cmd, resp in defaults.items():

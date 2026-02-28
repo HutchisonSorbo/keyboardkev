@@ -92,7 +92,7 @@ app = Flask('')
 
 @app.route('/')
 def home():
-    return f"{config.BOT_NAME} is alive and serving pints!"
+    return f"{config.BOT_NAME} is alive and analyzing stats!"
 
 def run_flask():
     port = int(os.environ.get('PORT', 8080))

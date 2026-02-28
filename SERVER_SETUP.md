@@ -10,7 +10,7 @@ In your Discord server, right-click the empty space on the left panel and select
 
 1. **The League Office** (For Commish announcements and rules)
 2. **AFL Fantasy HQ** (For all the serious footy action)
-3. **The Pub** (For general chat and banter)
+3. **The Commentary Box** (For general chat and banter)
 4. **Draft Night War Room** (Only used around draft time)
 
 ---
@@ -52,7 +52,7 @@ Underneath each Category, click the `+` icon to add a Text Channel or Voice Chan
   * **Purpose:** A dedicated channel so people don't clog up the main chat when looking up players.
   * **Kev's Role:** Members type `/scores`, `/ladder`, or `/stats [player]` here to instantly pull live AFL data.
 
-### 📂 The Pub
+### 📂 The Commentary Box
 
 *For off-topic chat.*
 
@@ -71,7 +71,7 @@ Underneath each Category, click the `+` icon to add a Text Channel or Voice Chan
   * **Purpose:** Talking absolute trash about reach picks.
   * **Kev's Role:** The Commish uses `/draftpick [Team] [Player]` here to announce live picks, prompting Kev to randomly roast the selection.
 * **`#The War Room`** (Voice Channel)
-  * **Purpose:** Where everyone jumps on the mics with a beer while the draft clock ticks down.
+  * **Purpose:** Where everyone jumps on the mics to chat while the draft clock ticks down.
 
 ---
 
@@ -86,7 +86,7 @@ Now that the channels exist, you need to make sure regular members can't mess th
 
 ## 🧠 Step 4: Add the Brain (Gemini API)
 
-You now have the `/askkev` command! Players can ask Kev literally anything about AFL history, grand finals, or players, and he will respond with accurate historical facts delivered entirely in his Australian Pub persona.
+You now have the `/askkev` command! Players can ask Kev literally anything about AFL history, grand finals, or players, and he will respond with accurate historical facts delivered entirely in his DT Talk persona.
 
 **To turn this brain on:**
 

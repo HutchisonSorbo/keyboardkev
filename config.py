@@ -143,11 +143,11 @@ DEFAULT_TEAMS = [
 # Message sent when a new member joins
 # Use {member} as a placeholder for the member mention
 # Use {server} as a placeholder for the server name
-WELCOME_MESSAGE = """🍻 G'day {member}, welcome to **{server}**! Pull up a stool. If you're looking for serious footy chat, head to #afl-fantasy. For everything else, #the-commentary-box is your spot. Have a quick read of #rules-and-prizes before we get started. 
+WELCOME_MESSAGE = """🍻 G'day {member}, welcome to **{server}**! Welcome to the Coaches box. If you're looking for serious footy chat, head to #afl-fantasy. For everything else, #the-commentary-box is your spot. Have a quick read of #rules-and-prizes before we get started. 
 
 **Quick League Rules:**
 1. Keep the banter sharp, but don't overstep the mark. No slurs.
-2. We're here to talk footy and fantasy. Have a laugh, crack a beer.
+2. We're here to talk footy and fantasy. Have a laugh, let's talk footy.
 3. Don't spam the chat or tag `@everyone` unless you're the Commissioner.
 4. Collusion is an instant red card. 
 5. Respect Discord's Terms of Service. Play on."""
@@ -157,7 +157,7 @@ WELCOME_MESSAGE = """🍻 G'day {member}, welcome to **{server}**! Pull up a sto
 DEFAULT_ROLE = "Rookie Coach"
 
 # DM sent to new members on join (set to None to disable DMs)
-WELCOME_DM = "G'day mate, welcome to Keyboard Coaches. Type /help in the server to see what I can do. I've got the stats, the advice, and occasionally, a cold beer. Catch ya in the chat."
+WELCOME_DM = "G'day mate, welcome to Keyboard Coaches. Type /help in the server to see what I can do. I've got the stats, the advice, and occasionally, a premium tip. Catch ya in the chat."
 
 # -----------------------------------------------------------------------------
 # MODERATION - Auto-Mod Settings
@@ -274,7 +274,7 @@ ROASTS = [
     "Did {target} just throw darts at the rookie list? Absolute chaos.",
     "We need to talk about {target}'s captaincy choices. It's actually hurting to watch.",
     "{target} chased last week's points again. Rookie mistake.",
-    "I've seen more value in a watered-down light beer than in {target}'s drafting strategy.",
+    "I've seen more value in a rookie list with no job security than in {target}'s drafting strategy.",
     "Is {target} trying to build a dynasty or a retirement home? Hard to tell.",
     "Someone tell {target} that 'Time on Ground' actually matters.",
     "{target} holds onto cash cows longer than a farmer in a drought. Upgrade them!",
@@ -291,7 +291,7 @@ ROASTS = [
 KEEPER_LEAGUE_ID = "775726"
 
 # The System Prompt used to heavily strictly control how the AI responds to questions.
-WARNIE_PERSONA_PROMPT = """You are "Keyboard Kev", an intensely knowledgeable, real-world Australian AFL Fantasy expert. Your personality, tone, language, and footy knowledge are strictly modeled after Warnie (Mark Warren) from DT Talk. You are currently responding to a member of the "Keyboard Coaches" fantasy league in their Discord server.
+WARNIE_PERSONA_PROMPT = """You are "Keyboard Kev", an intensely knowledgeable, real-world Australian AFL Fantasy expert. Your personality, tone, language, and footy knowledge are strictly modeled after Warnie (Mark Warren) from DT Talk. You occasionally reference your co-hosts "Roy" and "Calvin" to add authenticity. You are currently responding to a member of the "Keyboard Coaches" fantasy league in their Discord server.
 
 ⚠️ CRITICAL LANGUAGE AND TONE RULES:
 1. STRICTLY use Australian English spelling (e.g., analyser, organise, colour, centre).

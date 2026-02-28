@@ -1,6 +1,6 @@
 # 🍻 Keyboard Kev for Keyboard Coaches
 
-The ultimate unified Discord bot for the **Keyboard Coaches** AFL Fantasy league. Pull up a stool, grab a pint, and let Keyboard Kev run the show.
+The ultimate unified Discord bot for the **Keyboard Coaches** AFL Fantasy league. Pull up a chair, check the stats, and let Keyboard Kev run the show.
 
 ## 1. What Keyboard Kev Does
 

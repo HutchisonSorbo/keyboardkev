@@ -42,7 +42,7 @@ class KeeperValue(commands.Cog):
         # Determine Kev's Verdict based on the score
         if score < 80:
             verdict = "🗑️ WAIVER TRASH"
-            comment = "Throw 'em back in the pond. Not worth a spot on your roster. You're better off drafting a blind bloke with one leg."
+            comment = "Throw 'em back in the pond. Not worth a spot on your roster. You're better off drafting a bloke who hasn't played since 1999."
             color = config.COLOUR_MOD # Red
         elif score < 100:
             verdict = "😬 BORDERLINE"
@@ -54,7 +54,7 @@ class KeeperValue(commands.Cog):
             color = config.COLOUR_DRAFT # Gold
         elif score < 140:
             verdict = "🔥 LOCK HIM"
-            comment = "Absolute no-brainer. Lock it in, shut the laptop, and grab a pint."
+            comment = "Absolute no-brainer. Lock it in, shut the laptop, and enjoy the points."
             color = config.COLOUR_AFL # Orange/Red
         else:
             verdict = "👑 FRANCHISE SAVIOUR"

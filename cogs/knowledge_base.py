@@ -72,7 +72,7 @@ class KnowledgeBase(commands.Cog):
                 description=f"**\"{question}\"**\n\n{response.text}",
                 color=config.COLOUR_FUN
             )
-            embed.set_footer(text="Powered by 20 years of pub arguments (and Google Gemini)")
+            embed.set_footer(text="Powered by 20 years of AFL Fantasy expertise (and Google Gemini)")
             
             await interaction.followup.send(embed=embed)
             
@@ -174,6 +174,94 @@ class KnowledgeBase(commands.Cog):
         except Exception as e:
             log.error(f"Error calling Gemini API for matchup: {e}")
             await interaction.followup.send("Can't load the matchup right now.")
+
+    @app_commands.command(name="captains", description="Get Warnie's top Captain and Vice Captain picks for the round")
+    async def captains(self, interaction: discord.Interaction):
+        if not self.client_ready:
+            await interaction.response.send_message("Sorry mate, the Commish hasn't given me my API brain yet.", ephemeral=True)
+            return
+
+        await interaction.response.defer()
+        
+        try:
+            tz = pytz.timezone(config.TIMEZONE)
+            current_time = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
+            rosters = self.get_roster_context()
+            prompt = f"[SYSTEM: Current date and time in Kilmore, Victoria is {current_time}]{rosters}\n\nUser wants your top Captain and Vice Captain recommendations for the upcoming AFL round.\n\nPlease provide a detailed breakdown of 1-2 Vice Captain options (early games for loop-holing) and 1-2 Captain options. Consider match difficulty, historical scoring against the opponent, and recent form."
+
+            response = self.model.generate_content(prompt)
+            
+            embed = discord.Embed(
+                title="©️ Warnie's Captains",
+                description=response.text[:4000],
+                color=config.COLOUR_AFL
+            )
+            embed.set_footer(text="Captains Engine | Keyboard Kev")
+            
+            await interaction.followup.send(embed=embed)
+            
+        except Exception as e:
+            log.error(f"Error calling Gemini API for captains: {e}")
+            await interaction.followup.send("My crystal ball for captains is broken right now. Check back later.")
+
+    @app_commands.command(name="fixture", description="Ask Warnie about the upcoming fixture difficulty (Calvin's Scale of Hardness)")
+    @app_commands.describe(team_or_player="The team or player you want fixture analysis on")
+    async def fixture(self, interaction: discord.Interaction, team_or_player: str):
+        if not self.client_ready:
+            await interaction.response.send_message("Sorry mate, the Commish hasn't given me my API brain yet.", ephemeral=True)
+            return
+
+        await interaction.response.defer()
+        
+        try:
+            tz = pytz.timezone(config.TIMEZONE)
+            current_time = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
+            rosters = self.get_roster_context()
+            prompt = f"[SYSTEM: Current date and time in Kilmore, Victoria is {current_time}]{rosters}\n\nUser wants a fixture analysis on: {team_or_player}.\n\nPlease analyze the upcoming 3-4 matches for this player or team using the logic of Calvin's Scale of Hardness. Are they soft or hard matchups? Does it make them a buy, hold, or sell?"
+
+            response = self.model.generate_content(prompt)
+            
+            embed = discord.Embed(
+                title=f"📅 Fixture Analysis: {team_or_player}",
+                description=response.text[:4000],
+                color=config.COLOUR_STATS
+            )
+            embed.set_footer(text="Scale of Hardness | Keyboard Kev")
+            
+            await interaction.followup.send(embed=embed)
+            
+        except Exception as e:
+            log.error(f"Error calling Gemini API for fixture: {e}")
+            await interaction.followup.send("Scale of Hardness is offline. Give it a minute.")
+
+    @app_commands.command(name="rookies", description="Get Warnie's top rookie targets and cash cows for the week")
+    async def rookies(self, interaction: discord.Interaction):
+        if not self.client_ready:
+            await interaction.response.send_message("Sorry mate, the Commish hasn't given me my API brain yet.", ephemeral=True)
+            return
+
+        await interaction.response.defer()
+        
+        try:
+            tz = pytz.timezone(config.TIMEZONE)
+            current_time = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
+            rosters = self.get_roster_context()
+            prompt = f"[SYSTEM: Current date and time in Kilmore, Victoria is {current_time}]{rosters}\n\nUser wants a breakdown of the best rookie targets / cash cows to trade in this week.\n\nPlease provide 2-3 basement priced players that are locked into best 22 roles with good job security, high time on ground, or friendly roles."
+
+            response = self.model.generate_content(prompt)
+            
+            embed = discord.Embed(
+                title="🐄 Rookie Watchlist",
+                description=response.text[:4000],
+                color=config.COLOUR_FUN
+            )
+            embed.set_footer(text="Rookie Scanner | Keyboard Kev")
+            
+            await interaction.followup.send(embed=embed)
+            
+        except Exception as e:
+            log.error(f"Error calling Gemini API for rookies: {e}")
+            await interaction.followup.send("Cows haven't been milked yet. Too early to tell.")
 
     @commands.Cog.listener()
     async def on_message(self, message):

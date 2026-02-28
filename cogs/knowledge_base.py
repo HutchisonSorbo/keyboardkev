@@ -31,8 +31,7 @@ class KnowledgeBase(commands.Cog):
                 # but we will rely on the model itself knowing the instruction to "search" or use its latest knowledge.
                 self.model = genai.GenerativeModel(
                     model_name="gemini-2.5-flash", 
-                    system_instruction=config.WARNIE_PERSONA_PROMPT,
-                    tools='google_search_retrieval'
+                    system_instruction=config.WARNIE_PERSONA_PROMPT
                 )
                 self.client_ready = True
                 log.info("Gemini AI successfully initialized for /askkev")

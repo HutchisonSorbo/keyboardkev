@@ -7,7 +7,7 @@ import asyncio
 import re
 import os
 from bs4 import BeautifulSoup
-import google.generativeai as genai
+from google import genai
 
 import config
 import helpers
@@ -80,8 +80,9 @@ class TraumaTracker(commands.Cog):
 
     async def _post_articles(self, articles):
         api_key = os.getenv("GEMINI_API_KEY")
+        client = None
         if api_key:
-            genai.configure(api_key=api_key)
+            client = genai.Client(api_key=api_key)
             
         for guild in self.bot.guilds:
             news_channel = discord.utils.get(guild.text_channels, name=config.NEWS_CHANNEL)
@@ -111,13 +112,14 @@ class TraumaTracker(commands.Cog):
                                 paragraphs = soup.find_all('p')
                                 article_text = " ".join([p.get_text() for p in paragraphs[:10]])
                                 
-                                if len(article_text) > 200:
-                                    model = genai.GenerativeModel("gemini-2.5-flash")
-                                    
+                                if len(article_text) > 200 and client:
                                     # Prompt for News
                                     try:
                                         news_prompt = f'You are Keyboard Kev, an intensely knowledgeable Australian AFL Fantasy expert with the exact personality, tone, and knowledge of Warnie from DT Talk. Summarize the general AFL news from this article in 4-5 short, punchy bullet points starting with emojis to give coaches a quick TLDR. Focus specifically on the NEWS and details, NOT injuries. If there is absolutely NO general news (e.g. it is purely an injury update), reply ONLY with "NO_NEWS".\n\nArticle Title: {title}\nArticle Text: {article_text}'
-                                        resp_news = await model.generate_content_async(news_prompt)
+                                        resp_news = await client.aio.models.generate_content(
+                                            model="gemini-2.5-flash",
+                                            contents=news_prompt
+                                        )
                                         if resp_news.text and "NO_NEWS" not in resp_news.text:
                                             news_tldr = resp_news.text
                                     except Exception as e:
@@ -128,7 +130,10 @@ class TraumaTracker(commands.Cog):
                                     if has_injury_keywords or news_tldr is None:
                                         try:
                                             injury_prompt = f'You are Keyboard Kev, an intensely knowledgeable Australian AFL Fantasy expert with the exact personality, tone, and knowledge of Warnie from DT Talk. Summarize the AFL injury, medical and suspension updates from this article in 4-5 short, punchy bullet points starting with emojis to give coaches a quick TLDR. Focus specifically on INJURIES and availability. If there are NO injuries or suspensions mentioned, reply ONLY with "NO_INJURIES".\n\nArticle Title: {title}\nArticle Text: {article_text}'
-                                            resp_injury = await model.generate_content_async(injury_prompt)
+                                            resp_injury = await client.aio.models.generate_content(
+                                                model="gemini-2.5-flash",
+                                                contents=injury_prompt
+                                            )
                                             if resp_injury.text and "NO_INJURIES" not in resp_injury.text:
                                                 injury_tldr = resp_injury.text
                                         except Exception as e:

@@ -1,7 +1,8 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import os
 import logging
 from datetime import datetime
@@ -24,15 +25,7 @@ class KnowledgeBase(commands.Cog):
             log.warning("GEMINI_API_KEY not found in .env. The /askkev command will not work.")
         else:
             try:
-                genai.configure(api_key=api_key)
-                
-                # Create the model with System Instructions to enforce the persona
-                # We do not use google_search_retrieval here as it is not strictly supported by discord bots yet without oauth,
-                # but we will rely on the model itself knowing the instruction to "search" or use its latest knowledge.
-                self.model = genai.GenerativeModel(
-                    model_name="gemini-2.5-flash", 
-                    system_instruction=config.WARNIE_PERSONA_PROMPT
-                )
+                self.client = genai.Client(api_key=api_key)
                 self.client_ready = True
                 log.info("Gemini AI successfully initialized for /askkev")
             except Exception as e:
@@ -45,6 +38,16 @@ class KnowledgeBase(commands.Cog):
                 return f"\n\n[SYSTEM KNOWLEDGE (LEAGUE ROSTERS)]: {json.dumps(rosters)}"
         except (FileNotFoundError, json.JSONDecodeError):
             return "\n\n[SYSTEM KNOWLEDGE]: Rosters currently unavailable."
+
+    async def _generate(self, prompt: str) -> str:
+        response = await self.client.aio.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=config.WARNIE_PERSONA_PROMPT,
+            )
+        )
+        return response.text
 
     @app_commands.command(name="askkev", description="Ask Kev a question about AFL history, players, or general footy")
     @app_commands.describe(question="What do you want to ask?", private="Hide the answer from the rest of the server?")
@@ -64,12 +67,12 @@ class KnowledgeBase(commands.Cog):
             prompt_with_context = f"[SYSTEM: Current date and time in Kilmore, Victoria is {current_time}]{rosters}\n\nUser asked: {question}"
 
             # Generate the response
-            response = self.model.generate_content(prompt_with_context)
+            response_text = await self._generate(prompt_with_context)
             
             # Formatting the output nicely
             embed = discord.Embed(
                 title="🍻 You asked Kev...",
-                description=f"**\"{question}\"**\n\n{response.text}",
+                description=f"**\"{question}\"**\n\n{response_text}",
                 color=config.COLOUR_FUN
             )
             embed.set_footer(text="Powered by 20 years of AFL Fantasy expertise (and Google Gemini)")
@@ -97,12 +100,12 @@ class KnowledgeBase(commands.Cog):
             prompt_with_context = f"[SYSTEM: Current date and time in Kilmore, Victoria is {current_time}]{rosters}\n\nUser is asking for your verdict on this trade or draft pick: {topic}\n\nPlease analyze this move and give a verdict using your persona."
 
             # Generate the response
-            response = self.model.generate_content(prompt_with_context)
+            response_text = await self._generate(prompt_with_context)
             
             # Formatting the output nicely
             embed = discord.Embed(
                 title="🍺 Kev's Verdict",
-                description=response.text[:4000],
+                description=response_text[:4000],
                 color=config.COLOUR_FUN
             )
             embed.set_thumbnail(url=self.bot.user.display_avatar.url if self.bot.user.display_avatar else None)
@@ -128,11 +131,11 @@ class KnowledgeBase(commands.Cog):
             rosters = self.get_roster_context()
             prompt = f"[SYSTEM: Current date and time in Kilmore, Victoria is {current_time}]{rosters}\n\nUser wants a deep analysis of a proposed trade.\nTeam A receives: {team_a_gets}\nTeam B receives: {team_b_gets}\n\nPlease provide a mathematical and strategic breakdown. Consider positional scarcity, keeper value, and recent form. Who wins the trade and why?"
 
-            response = self.model.generate_content(prompt)
+            response_text = await self._generate(prompt)
             
             embed = discord.Embed(
                 title="⚖️ Trade Analyser",
-                description=response.text[:4000],
+                description=response_text[:4000],
                 color=config.COLOUR_STATS
             )
             embed.add_field(name="Team A Gets", value=team_a_gets, inline=True)
@@ -160,11 +163,11 @@ class KnowledgeBase(commands.Cog):
             rosters = self.get_roster_context()
             prompt = f"[SYSTEM: Current date and time in Kilmore, Victoria is {current_time}]{rosters}\n\nUser wants a matchup comparison between these two players: {player1} vs {player2}.\n\nPlease compare their recent form, ceiling, and their upcoming match difficulty. Give a definitive answer on who the better start or Captain pick is this week."
 
-            response = self.model.generate_content(prompt)
+            response_text = await self._generate(prompt)
             
             embed = discord.Embed(
                 title=f"🥊 Matchup: {player1} vs {player2}",
-                description=response.text[:4000],
+                description=response_text[:4000],
                 color=config.COLOUR_FUN
             )
             embed.set_footer(text="Matchup Engine | Keyboard Kev")
@@ -189,11 +192,11 @@ class KnowledgeBase(commands.Cog):
             rosters = self.get_roster_context()
             prompt = f"[SYSTEM: Current date and time in Kilmore, Victoria is {current_time}]{rosters}\n\nUser wants your top Captain and Vice Captain recommendations for the upcoming AFL round.\n\nPlease provide a detailed breakdown of 1-2 Vice Captain options (early games for loop-holing) and 1-2 Captain options. Consider match difficulty, historical scoring against the opponent, and recent form."
 
-            response = self.model.generate_content(prompt)
+            response_text = await self._generate(prompt)
             
             embed = discord.Embed(
                 title="©️ Warnie's Captains",
-                description=response.text[:4000],
+                description=response_text[:4000],
                 color=config.COLOUR_AFL
             )
             embed.set_footer(text="Captains Engine | Keyboard Kev")
@@ -219,11 +222,11 @@ class KnowledgeBase(commands.Cog):
             rosters = self.get_roster_context()
             prompt = f"[SYSTEM: Current date and time in Kilmore, Victoria is {current_time}]{rosters}\n\nUser wants a fixture analysis on: {team_or_player}.\n\nPlease analyze the upcoming 3-4 matches for this player or team using the logic of Calvin's Scale of Hardness. Are they soft or hard matchups? Does it make them a buy, hold, or sell?"
 
-            response = self.model.generate_content(prompt)
+            response_text = await self._generate(prompt)
             
             embed = discord.Embed(
                 title=f"📅 Fixture Analysis: {team_or_player}",
-                description=response.text[:4000],
+                description=response_text[:4000],
                 color=config.COLOUR_STATS
             )
             embed.set_footer(text="Scale of Hardness | Keyboard Kev")
@@ -248,11 +251,11 @@ class KnowledgeBase(commands.Cog):
             rosters = self.get_roster_context()
             prompt = f"[SYSTEM: Current date and time in Kilmore, Victoria is {current_time}]{rosters}\n\nUser wants a breakdown of the best rookie targets / cash cows to trade in this week.\n\nPlease provide 2-3 basement priced players that are locked into best 22 roles with good job security, high time on ground, or friendly roles."
 
-            response = self.model.generate_content(prompt)
+            response_text = await self._generate(prompt)
             
             embed = discord.Embed(
                 title="🐄 Rookie Watchlist",
-                description=response.text[:4000],
+                description=response_text[:4000],
                 color=config.COLOUR_FUN
             )
             embed.set_footer(text="Rookie Scanner | Keyboard Kev")
@@ -278,9 +281,9 @@ class KnowledgeBase(commands.Cog):
                 rosters = self.get_roster_context()
                 prompt_with_context = f"[SYSTEM NOTIFICATION: Current date and time in Kilmore, Victoria is {current_time}. You are chatting privately in a Direct Message with {message.author.name}.]{rosters}\n\n{message.content}"
                 
-                response = self.model.generate_content(prompt_with_context)
+                response_text = await self._generate(prompt_with_context)
                 
-                await message.reply(response.text)
+                await message.reply(response_text)
                 log.info(f"Replied privately to DM from {message.author.name}")
             except Exception as e:
                 log.error(f"Error answering DM from {message.author.name}: {e}")

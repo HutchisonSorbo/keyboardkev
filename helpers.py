@@ -33,6 +33,9 @@ class DiscordDB:
     def __init__(self, bot):
         self.bot = bot
         self._cache = {}
+        self._sync_lock = asyncio.Lock()
+        self._history_synced = False
+        self._attachment_map = {}
 
     async def _get_channel(self):
         for guild in self.bot.guilds:
@@ -46,23 +49,31 @@ class DiscordDB:
         if filename in self._cache:
             return self._cache[filename]
             
-        channel = await self._get_channel()
-        if not channel:
-            log.warning(f"Could not find #{config.MOD_LOG_CHANNEL} to load {filename}")
-            return {}
+        async with self._sync_lock:
+            if not self._history_synced:
+                channel = await self._get_channel()
+                if channel:
+                    try:
+                        async for message in channel.history(limit=100):
+                            if message.author == self.bot.user and message.attachments:
+                                for attachment in message.attachments:
+                                    fname = attachment.filename
+                                    if fname not in self._attachment_map:
+                                        self._attachment_map[fname] = attachment
+                        self._history_synced = True
+                    except Exception as e:
+                        log.error(f"Error syncing DiscordDB history: {e}")
 
-        try:
-            async for message in channel.history(limit=100):
-                if message.author == self.bot.user and message.attachments:
-                    for attachment in message.attachments:
-                        if attachment.filename == filename.split('/')[-1]:
-                            json_bytes = await attachment.read()
-                            data = json.loads(json_bytes.decode('utf-8'))
-                            self._cache[filename] = data
-                            return data
-        except Exception as e:
-            log.error(f"Error reading DiscordDB for {filename}: {e}")
-            
+        basename = filename.split('/')[-1]
+        if basename in self._attachment_map:
+            try:
+                json_bytes = await self._attachment_map[basename].read()
+                data = json.loads(json_bytes.decode('utf-8'))
+                self._cache[filename] = data
+                return data
+            except Exception as e:
+                log.error(f"Error reading DiscordDB attachment for {filename}: {e}")
+                
         self._cache[filename] = {}
         return {}
 

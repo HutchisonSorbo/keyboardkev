@@ -50,8 +50,8 @@ class KnowledgeBase(commands.Cog):
         return response.text
 
     @app_commands.command(name="askkev", description="Ask Kev a question about AFL history, players, or general footy")
-    @app_commands.describe(question="What do you want to ask?", private="Hide the answer from the rest of the server?")
-    async def ask_kev(self, interaction: discord.Interaction, question: str, private: bool = False):
+    @app_commands.describe(question="What do you want to ask?", private="Hide the answer from the rest of the server? (Default: Yes)")
+    async def ask_kev(self, interaction: discord.Interaction, question: str, private: bool = True):
         if not self.client_ready:
             await interaction.response.send_message("Sorry mate, the Commish hasn't given me my API brain yet.", ephemeral=True)
             return

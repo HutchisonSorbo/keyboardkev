@@ -105,6 +105,30 @@ SQUIGGLE_USER_AGENT = "KeyboardCoachesDiscordBot/1.0"
 # Cache duration for API responses (seconds). Prevents hammering the free API.
 API_CACHE_TTL_SECONDS = 300    # 5 minutes
 
+# -----------------------------------------------------------------------------
+# TIPPING - Squiggle s10 + Don't Blame the Data Integration
+# Pulls predictions from Squiggle's tips endpoint using source IDs.
+# s10 = top-10 model aggregate, DBTD = Don't Blame the Data model.
+# -----------------------------------------------------------------------------
+
+# Channel where tipping data is posted
+TIPPING_CHANNEL = "tipping"
+
+# Squiggle source IDs (from https://api.squiggle.com.au/?q=sources)
+SQUIGGLE_S10_SOURCE_ID = 21       # s10 aggregate (top 10 models)
+SQUIGGLE_DBTD_SOURCE_ID = 34     # Don't Blame the Data
+
+# Auto-post schedule: day of week (0=Mon, 1=Tue, ..., 6=Sun) and hour (24hr)
+TIPPING_PREVIEW_DAY = 1          # Tuesday
+TIPPING_PREVIEW_HOUR = 12        # Midday AEDT
+
+# Thursday update after team sheets drop
+TIPPING_UPDATE_HOUR = 18         # 6:30 PM AEDT (runs at 18:30)
+TIPPING_UPDATE_MINUTE = 30
+
+# Embed colour for tipping posts
+COLOUR_TIPPING = 0x2ECC71        # Green
+
 # Number of recent games to show in a /stats player lookup
 RECENT_GAMES_TO_SHOW = 5
 

@@ -2,7 +2,7 @@ import os
 import asyncio
 import logging
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from dotenv import load_dotenv
 import aiohttp
 from threading import Thread
@@ -10,6 +10,18 @@ from flask import Flask
 
 import config
 import helpers
+
+# Status rotation messages — {round} is replaced dynamically with the current AFL round
+STATUS_MESSAGES = [
+    "Lockout Thu ~7pm AEDT",
+    "Waivers close Wed 11:59pm",
+    "/askkev for advice",
+    "/tips for tipping data",
+    "AFL Round {round}",
+    "8 coaches, 1 trophy",
+    "Trust the data, not your gut",
+    "/powerrankings for the pecking order",
+]
 
 # Setup logging
 logging.basicConfig(
@@ -80,6 +92,51 @@ class CoachBot(commands.Bot):
         log.info(f"Logged in as {self.user.name} (ID: {self.user.id})")
         log.info(f"Currently in {len(self.guilds)} server(s).")
         log.info(f"{config.BOT_NAME} is fully online and ready.")
+        if not self.rotate_status.is_running():
+            self.rotate_status.start()
+
+    @tasks.loop(minutes=5)
+    async def rotate_status(self):
+        """Rotate the bot's Discord status through contextual messages."""
+        try:
+            if not hasattr(self, '_status_index'):
+                self._status_index = 0
+
+            msg = STATUS_MESSAGES[self._status_index % len(STATUS_MESSAGES)]
+
+            # Replace {round} with current AFL round if needed
+            if '{round}' in msg:
+                current_round = await self._get_current_round()
+                msg = msg.replace('{round}', str(current_round) if current_round else '?')
+
+            await self.change_presence(
+                activity=discord.Activity(
+                    type=discord.ActivityType.watching,
+                    name=msg
+                )
+            )
+            self._status_index += 1
+        except Exception as e:
+            log.error(f"Error rotating status: {e}")
+
+    async def _get_current_round(self):
+        """Fetch the current AFL round from Squiggle."""
+        from datetime import datetime
+        url = f"{config.SQUIGGLE_BASE_URL}?q=games;year={datetime.now().year}"
+        headers = {"User-Agent": config.SQUIGGLE_USER_AGENT}
+        try:
+            async with self.session.get(url, headers=headers) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    for g in data.get('games', []):
+                        if g.get('complete', 100) < 100:
+                            return g.get('round')
+                    games = data.get('games', [])
+                    if games:
+                        return games[-1].get('round')
+        except Exception:
+            pass
+        return None
 
     async def close(self):
         if self.session:

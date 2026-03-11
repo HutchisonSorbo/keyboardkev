@@ -55,11 +55,11 @@ TIMEZONE = "Australia/Melbourne"
 
 # First reminder time (when Wednesday teams drop) - 24hr format
 WEDNESDAY_REMINDER_HOUR = 18       # 6:00 PM
-WEDNESDAY_REMINDER_MINUTE = 20
+WEDNESDAY_REMINDER_MINUTE = 10
 
 # Final lockout warning time (when Thursday teams drop) - 24hr format
 THURSDAY_REMINDER_HOUR = 18       # 6:00 PM
-THURSDAY_REMINDER_MINUTE = 20
+THURSDAY_REMINDER_MINUTE = 10
 
 # Edit these messages to change what Larry says
 WEDNESDAY_REMINDER_MESSAGE = "🚨 **TEAMS DROP IN 10 MINS!** (Thursday Matches Only) Check the Thursday teams. Start getting your trades sorted."

@@ -39,12 +39,12 @@ class PowerRankings(commands.Cog):
             return None
 
     async def scrape_league_standings(self):
-        """Scrape the Keeper Fantasy league page for standings and matchup data."""
+        """Scrape the Keeper Fantasy matchup page for live scores and matchups."""
         league_id = getattr(config, 'KEEPER_LEAGUE_ID', None)
         if not league_id:
             return None
 
-        url = f"https://keeperfantasy.com/afl/{league_id}"
+        url = f"https://keeperfantasy.com/afl/{league_id}/matchup"
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         }
@@ -53,57 +53,62 @@ class PowerRankings(commands.Cog):
             async with self.bot.session.get(url, headers=headers) as resp:
                 if resp.status != 200:
                     return None
-                html = await resp.text()
+                html = await resp.read()
+                
         except Exception as e:
             log.error(f"Error fetching league page for power rankings: {e}")
             return None
 
-        soup = BeautifulSoup(html, 'html.parser')
-        teams = []
+        try:
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(html, 'html.parser')
+            matchups = []
+            
+            # Find the VS dividers inside matchups
+            cards = soup.find_all(lambda tag: tag.name == 'div' and tag.text.strip() == 'vs')
+            
+            for card_vs in cards:
+                container = card_vs.parent
+                if container:
+                    text_lines = [line.strip() for line in container.parent.get_text(separator='\n').split('\n') if line.strip()]
+                    
+                    m_data = {"team1": "Unknown", "score1": 0, "team2": "Unknown", "score2": 0}
+                    
+                    links = container.parent.find_all('a')
+                    team_names = []
+                    for l in links:
+                        if 'round=' in l.get('href', ''):
+                            team_names.append(l.get_text(strip=True))
+                    
+                    if len(team_names) >= 2:
+                        m_data["team1"] = team_names[0]
+                        m_data["team2"] = team_names[1]
+                        
+                        try:
+                            t1_idx = text_lines.index(team_names[0])
+                            # The score is usually 2 spots after the team name (TeamName, "0", SCORE...)
+                            m_data["score1"] = int(text_lines[t1_idx + 2])
+                        except (ValueError, IndexError):
+                            pass
 
-        # Extract team names and records from the league page
-        for link in soup.find_all('a', href=lambda h: h and '/matchup?' in h):
-            text = link.get_text(separator='\n', strip=True)
-            lines = [l.strip() for l in text.split('\n') if l.strip()]
+                        try:
+                            t2_idx = text_lines.index(team_names[1])
+                            m_data["score2"] = int(text_lines[t2_idx + 2])
+                        except (ValueError, IndexError):
+                            pass
+                            
+                    matchups.append(m_data)
 
-            for i, line in enumerate(lines):
-                # Records follow the pattern X-X-X
-                if '-' in line and line.count('-') == 2:
-                    parts = line.split('-')
-                    if all(p.strip().isdigit() for p in parts):
-                        # The line before is the team name
-                        if i > 0:
-                            team_name = lines[i - 1]
-                            wins, losses, draws = [int(p.strip()) for p in parts]
-                            # Check we haven't added this team yet
-                            if not any(t["name"] == team_name for t in teams):
-                                # Look for a score after the record
-                                score = 0
-                                projected = 0
-                                for j in range(i + 1, min(i + 3, len(lines))):
-                                    if lines[j].isdigit():
-                                        if score == 0:
-                                            score = int(lines[j])
-                                        else:
-                                            projected = int(lines[j])
-                                            break
-
-                                teams.append({
-                                    "name": team_name,
-                                    "wins": wins,
-                                    "losses": losses,
-                                    "draws": draws,
-                                    "score": score,
-                                    "projected": projected
-                                })
-
-        return teams if teams else None
+            return matchups if matchups else None
+        except Exception as e:
+            log.error(f"Error parsing matchup page: {e}")
+            return None
 
     # -------------------------------------------------------------------------
     # Gemini AI power rankings generation
     # -------------------------------------------------------------------------
 
-    async def generate_rankings(self, standings, rosters):
+    async def generate_rankings(self, matchups, rosters):
         """Use Gemini AI to generate power rankings."""
         # Check if the KnowledgeBase cog is loaded (has the Gemini client)
         kb_cog = self.bot.get_cog("KnowledgeBase")
@@ -121,26 +126,26 @@ class PowerRankings(commands.Cog):
                 if len(players) > 10:
                     roster_summary += f" (+{len(players) - 10} more)"
 
-        standings_text = ""
-        if standings:
-            for t in standings:
-                standings_text += f"\n{t['name']}: {t['wins']}W-{t['losses']}L-{t['draws']}D | Score: {t['score']} | Projected: {t['projected']}"
+        matchups_text = ""
+        if matchups:
+            for m in matchups:
+                matchups_text += f"\nMatchup: {m['team1']} (Score: {m['score1']}) vs {m['team2']} (Score: {m['score2']})"
 
         prompt = f"""[SYSTEM: Current date and time is {current_time}. You are generating weekly Power Rankings for the Keyboard Coaches fantasy league.]
 
-LEAGUE STANDINGS:{standings_text if standings_text else " No standings data available yet."}
+LIVE MATCHUPS & SCORES:{matchups_text if matchups_text else " No live matchups available."}
 
 TEAM ROSTERS:{roster_summary if roster_summary else " No roster data available yet."}
 
 Generate power rankings for all 8 teams in the Keyboard Coaches league. For each team (ranked 1 to 8):
 1. Give a brief, sharp assessment (2-3 sentences max per team)
-2. Focus on roster strength, recent form, upcoming matchups, and any key risks
-3. Use your Warnie persona — direct, opinionated, data-driven
-4. If it's pre-season or Round 1, base rankings on roster quality and projected totals
+2. Focus on roster strength, this week's live scores, who they are playing this week, and any key risks
+3. Use your Warnie persona — direct, opinionated, data-driven. Banter them about their current matchup.
+4. If it's pre-season or Round 1, base rankings heavily on their live score performance so far.
 
 Format each ranking as:
 **#1. Team Name** ⬆️/⬇️/➡️ (movement indicator)
-Assessment text here.
+Assessment text here (including matchup banter).
 
 Keep the entire response under 2000 characters for Discord embed limits."""
 
@@ -159,10 +164,10 @@ Keep the entire response under 2000 characters for Discord embed limits."""
     async def power_rankings_command(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
-        standings = await self.scrape_league_standings()
+        matchups = await self.scrape_league_standings()
         rosters = self.get_roster_data()
 
-        rankings_text = await self.generate_rankings(standings, rosters)
+        rankings_text = await self.generate_rankings(matchups, rosters)
 
         if not rankings_text:
             await interaction.followup.send(
@@ -177,6 +182,35 @@ Keep the entire response under 2000 characters for Discord embed limits."""
         )
         embed.set_footer(text="Power Rankings | Keyboard Kev | Updated Weekly")
         await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="force_rankings", description="Admin: Force generate and post the power rankings immediately")
+    @app_commands.checks.has_role("Commissioner")
+    async def force_rankings_command(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
+
+        matchups = await self.scrape_league_standings()
+        rosters = self.get_roster_data()
+
+        rankings_text = await self.generate_rankings(matchups, rosters)
+
+        if not rankings_text:
+            await interaction.followup.send("Failed to generate power rankings.")
+            return
+
+        embed = discord.Embed(
+            title="📊 Kev's Power Rankings",
+            description=rankings_text[:4000],
+            colour=config.COLOUR_AFL
+        )
+        embed.set_footer(text="Power Rankings | Keyboard Kev | Updated Weekly")
+
+        guild = interaction.guild
+        channel = discord.utils.get(guild.text_channels, name=config.AFL_CHANNEL)
+        if channel:
+            await channel.send(embed=embed)
+            await interaction.followup.send("Posted Power Rankings to the channel.")
+        else:
+            await interaction.followup.send("Could not find afl-fantasy channel.")
 
     # -------------------------------------------------------------------------
     # Scheduled auto-post — Wednesday 12 PM
@@ -198,9 +232,9 @@ Keep the entire response under 2000 characters for Discord embed limits."""
             if self.last_rankings_round == week_key:
                 return
 
-            standings = await self.scrape_league_standings()
+            matchups = await self.scrape_league_standings()
             rosters = self.get_roster_data()
-            rankings_text = await self.generate_rankings(standings, rosters)
+            rankings_text = await self.generate_rankings(matchups, rosters)
 
             if not rankings_text:
                 return

@@ -215,6 +215,11 @@ class ScoreboardStevo(commands.Cog):
         # Populate the finished games array silently right now so we don't spam 
         # announcements for games that ended weeks ago when the bot starts up.
         try:
+            from datetime import timedelta
+            import pytz
+            tz = pytz.timezone(config.TIMEZONE)
+            now = datetime.now(tz)
+
             url = f"{config.SQUIGGLE_BASE_URL}?q=games;year={datetime.now().year}"
             headers = {"User-Agent": config.SQUIGGLE_USER_AGENT}
             async with self.bot.session.get(url, headers=headers) as resp:
@@ -223,7 +228,15 @@ class ScoreboardStevo(commands.Cog):
                     games = data.get("games", [])
                     for g in games:
                         if g.get("complete", 0) == 100:
-                            self.completed_games.add(g.get("id"))
+                            game_date_str = g.get("date", "")
+                            try:
+                                dt = datetime.strptime(game_date_str, "%Y-%m-%d %H:%M:%S")
+                                dt = tz.localize(dt)
+                                # If game started > 12 hours ago, silently add to completed
+                                if now - dt > timedelta(hours=12):
+                                    self.completed_games.add(g.get("id"))
+                            except ValueError:
+                                self.completed_games.add(g.get("id"))
         except Exception as e:
             log.error(f"Failed to prepopulate finished games array: {e}")
 

@@ -91,16 +91,10 @@ class Tipping(commands.Cog):
     # Embed builder
     # -------------------------------------------------------------------------
 
-    def build_tips_embed(self, s10_tips, dbtd_tips, round_num, year, is_update=False):
-        """Build a compact embed combining s10 and DBTD tips for a round."""
+    def build_tips_embed(self, s10_tips, round_num, year, is_update=False):
+        """Build a compact embed combining s10 tips for a round."""
 
-        # Index DBTD tips by game ID for easy lookup
-        dbtd_by_game = {}
-        if dbtd_tips and "tips" in dbtd_tips:
-            for t in dbtd_tips["tips"]:
-                dbtd_by_game[t.get("gameid")] = t
-
-        title_prefix = "📊 Updated Tips" if is_update else "🏈 Round Tips"
+        title_prefix = "📊 Updated Tips" if is_update else "Round Tips"
         embed = discord.Embed(
             title=f"{title_prefix} — Round {round_num}, {year}",
             colour=config.COLOUR_TIPPING
@@ -115,7 +109,6 @@ class Tipping(commands.Cog):
 
         lines = []
         for tip in tips_sorted:
-            game_id = tip.get("gameid")
             home = tip.get("hteam", "?")
             away = tip.get("ateam", "?")
 
@@ -130,31 +123,10 @@ class Tipping(commands.Cog):
             if s10_conf:
                 s10_text += f" ({float(s10_conf):.0f}%)"
 
-            # DBTD data
-            dbtd_tip = dbtd_by_game.get(game_id)
-            if dbtd_tip:
-                dbtd_pick = dbtd_tip.get("tip", "?")
-                dbtd_margin = dbtd_tip.get("margin")
-                dbtd_conf = dbtd_tip.get("confidence")
-
-                dbtd_text = f"**{dbtd_pick}**"
-                if dbtd_margin:
-                    dbtd_text += f" by {float(dbtd_margin):.0f}"
-                if dbtd_conf:
-                    dbtd_text += f" ({float(dbtd_conf):.0f}%)"
-
-                # Agreement indicator
-                agree = "✅" if s10_pick == dbtd_pick else "⚠️"
-            else:
-                dbtd_text = "*N/A*"
-                agree = "❓"
-
             # Game date/time
             game_date = tip.get("date", "")
             try:
                 dt = datetime.strptime(game_date, "%Y-%m-%d %H:%M:%S")
-                tz = pytz.timezone(config.TIMEZONE)
-                dt = pytz.utc.localize(dt).astimezone(tz) if dt.tzinfo is None else dt
                 date_str = dt.strftime("%a %d %b %I:%M%p").lstrip("0").replace(" 0", " ").replace("AM", "am").replace("PM", "pm")
             except (ValueError, AttributeError):
                 date_str = game_date
@@ -162,17 +134,15 @@ class Tipping(commands.Cog):
             venue = tip.get("venue", "")
 
             lines.append(
-                f"{agree} **{home} v {away}**\n"
+                f"✅ **{home} v {away}**\n"
                 f"┣ s10: {s10_text}\n"
-                f"┣ DBTD: {dbtd_text}\n"
                 f"┗ *{date_str} — {venue}*"
             )
 
         embed.description = "\n\n".join(lines)
 
         embed.set_footer(
-            text="s10 = Squiggle Top-10 Aggregate | DBTD = Don't Blame the Data\n"
-                 "squiggle.com.au • dontblamethedata.com"
+            text="s10 = Squiggle Top-10 Aggregate\nsquiggle.com.au"
         )
 
         return embed
@@ -181,7 +151,7 @@ class Tipping(commands.Cog):
     # Slash command: /tips
     # -------------------------------------------------------------------------
 
-    @app_commands.command(name="tips", description="Get AFL tipping predictions from s10 and Don't Blame the Data")
+    @app_commands.command(name="tips", description="Get AFL tipping predictions from s10")
     @app_commands.describe(
         round="Round number (defaults to current/next round)",
         public="Show to everyone in the channel? (Default: No)"
@@ -197,12 +167,26 @@ class Tipping(commands.Cog):
                 await interaction.followup.send("Couldn't determine the current round. Try specifying one: `/tips round:1`")
                 return
 
-        # Fetch both sources
+        # Fetch sources
         s10_data = await self.fetch_tips(config.SQUIGGLE_S10_SOURCE_ID, year=year, round_num=round)
-        dbtd_data = await self.fetch_tips(config.SQUIGGLE_DBTD_SOURCE_ID, year=year, round_num=round)
 
-        embed = self.build_tips_embed(s10_data, dbtd_data, round, year)
+        embed = self.build_tips_embed(s10_data, round, year)
         await interaction.followup.send(embed=embed)
+
+    @app_commands.command(name="force_tips", description="Admin: Force post the tips into the tipping channel immediately")
+    @app_commands.checks.has_role("Commissioner")
+    async def force_tips_command(self, interaction: discord.Interaction, round: int = None):
+        await interaction.response.defer(ephemeral=True)
+
+        year = datetime.now().year
+        if round is None:
+            round = await self.get_current_round(year)
+            if round is None:
+                await interaction.followup.send("Couldn't determine the current round. Specify one: `/force_tips round:1`")
+                return
+        
+        await self._auto_post_tips(round, year, is_update=False)
+        await interaction.followup.send(f"Posted tips for Round {round} to the channel.")
 
     # -------------------------------------------------------------------------
     # Scheduled auto-post
@@ -254,9 +238,8 @@ class Tipping(commands.Cog):
     async def _auto_post_tips(self, round_num, year, is_update=False):
         """Post tips embed to #tipping in all guilds."""
         s10_data = await self.fetch_tips(config.SQUIGGLE_S10_SOURCE_ID, year=year, round_num=round_num)
-        dbtd_data = await self.fetch_tips(config.SQUIGGLE_DBTD_SOURCE_ID, year=year, round_num=round_num)
 
-        embed = self.build_tips_embed(s10_data, dbtd_data, round_num, year, is_update=is_update)
+        embed = self.build_tips_embed(s10_data, round_num, year, is_update=is_update)
 
         for guild in self.bot.guilds:
             channel = discord.utils.get(guild.text_channels, name=config.TIPPING_CHANNEL)

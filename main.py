@@ -14,11 +14,11 @@ import helpers
 # Status rotation messages — {round} is replaced dynamically with the current AFL round
 STATUS_MESSAGES = [
     "Lockout Thu ~7pm AEDT",
-    "Waivers close Wed 11:59pm",
+    "Teams drop Wed/Thu 6:20pm AEDT",
     "/askkev for advice",
-    "/tips for tipping data",
+    "/tips for s10 tipping data",
     "AFL Round {round}",
-    "8 coaches, 1 trophy",
+    "18 coaches, 1 trophy",
     "Trust the data, not your gut",
     "/powerrankings for the pecking order",
 ]

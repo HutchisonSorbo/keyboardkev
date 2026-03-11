@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands, tasks
 import pytz
+from zoneinfo import ZoneInfo
 from datetime import datetime, time, timedelta
 import logging
 import aiohttp
@@ -14,9 +15,11 @@ class LockoutLarry(commands.Cog):
         self.bot = bot
         self.tz = pytz.timezone(config.TIMEZONE)
         
-        # We need to construct the expected times.
-        self.wednesday_time = time(hour=config.WEDNESDAY_REMINDER_HOUR, minute=config.WEDNESDAY_REMINDER_MINUTE, tzinfo=self.tz)
-        self.thursday_time = time(hour=config.THURSDAY_REMINDER_HOUR, minute=config.THURSDAY_REMINDER_MINUTE, tzinfo=self.tz)
+        # Use ZoneInfo for discord.ext.tasks.loop to avoid historical offset bugs
+        self.zone_info = ZoneInfo(config.TIMEZONE)
+        
+        self.wednesday_time = time(hour=config.WEDNESDAY_REMINDER_HOUR, minute=config.WEDNESDAY_REMINDER_MINUTE, tzinfo=self.zone_info)
+        self.thursday_time = time(hour=config.THURSDAY_REMINDER_HOUR, minute=config.THURSDAY_REMINDER_MINUTE, tzinfo=self.zone_info)
         
         self.wednesday_announcement.start()
         self.thursday_announcement.start()
@@ -38,7 +41,7 @@ class LockoutLarry(commands.Cog):
             log.error(f"Failed to fetch games from Squiggle: {e}")
         return []
 
-    @tasks.loop(time=[time(hour=config.WEDNESDAY_REMINDER_HOUR, minute=config.WEDNESDAY_REMINDER_MINUTE, tzinfo=pytz.timezone(config.TIMEZONE))])
+    @tasks.loop(time=[time(hour=config.WEDNESDAY_REMINDER_HOUR, minute=config.WEDNESDAY_REMINDER_MINUTE, tzinfo=ZoneInfo(config.TIMEZONE))])
     async def wednesday_announcement(self):
         # We only want to send this on Wednesdays.
         now = datetime.now(self.tz)
@@ -66,7 +69,7 @@ class LockoutLarry(commands.Cog):
             else:
                 log.info("No Thursday game found. Wednesday reminder skipped.")
 
-    @tasks.loop(time=[time(hour=config.THURSDAY_REMINDER_HOUR, minute=config.THURSDAY_REMINDER_MINUTE, tzinfo=pytz.timezone(config.TIMEZONE))])
+    @tasks.loop(time=[time(hour=config.THURSDAY_REMINDER_HOUR, minute=config.THURSDAY_REMINDER_MINUTE, tzinfo=ZoneInfo(config.TIMEZONE))])
     async def thursday_announcement(self):
         # We only want to send this on Thursdays.
         now = datetime.now(self.tz)
